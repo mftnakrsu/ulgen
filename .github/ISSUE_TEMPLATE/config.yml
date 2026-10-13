@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security problem / Güvenlik sorunu
+    url: https://github.com/mftnakrsu/ulgen/security/advisories/new
+    about: Report it privately, not as a public issue.

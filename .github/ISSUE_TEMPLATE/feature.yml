@@ -1,0 +1,15 @@
+name: Feature request / Özellik isteği
+description: Something Ülgen should do. Türkçe yazabilirsiniz.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What are you trying to do?
+      description: The problem, before the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?

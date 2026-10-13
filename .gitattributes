@@ -1,0 +1,12 @@
+# LF in the repository and in every checkout, so sources and tests behave the
+# same on Linux, Windows and macOS.
+* text=auto eol=lf
+
+# Windows batch files need CRLF to run.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary

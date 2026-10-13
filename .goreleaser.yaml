@@ -1,0 +1,104 @@
+# GoReleaser builds Ülgen's release files: six binaries, their archives, a
+# checksum file with its signature, and .deb and .rpm packages. How a release is cut: docs/release.md
+#
+# A release is made only by the workflow in .github/workflows/release.yml when
+# a version tag is pushed, and it is created as a draft. To try this file
+# without publishing anything:
+#
+#   goreleaser check
+#   goreleaser release --snapshot --clean
+version: 2
+
+project_name: ulgen
+
+builds:
+  - id: ulgen
+    main: ./cmd/ulgen
+    binary: ulgen
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mftnakrsu/ulgen/internal/version.Version={{ .Version }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: ulgen
+    ids:
+      - ulgen
+    name_template: "ulgen_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+# The checksum file is signed with cosign's keyless signing: the signature is
+# tied to this repository's release workflow through GitHub's OIDC token, and
+# there is no private key to keep. Only a tagged release is signed; a snapshot
+# has no identity to sign with. Verifying it: docs/install.md
+signs:
+  - cmd: cosign
+    artifacts: checksum
+    signature: "${artifact}.sigstore.json"
+    args:
+      - sign-blob
+      - "--bundle=${signature}"
+      - "${artifact}"
+      - "--yes"
+
+nfpms:
+  - id: ulgen
+    ids:
+      - ulgen
+    package_name: ulgen
+    file_name_template: "ulgen_{{ .Version }}_{{ .Arch }}"
+    formats:
+      - deb
+      - rpm
+    vendor: Ülgen
+    homepage: https://github.com/mftnakrsu/ulgen
+    maintainer: Meftun Akarsu <57320216+mftnakrsu@users.noreply.github.com>
+    description: |-
+      Connects EVREN to the open-source coding tools people already use.
+      Ülgen signs in to EVREN, writes the EVREN provider into Qwen Code,
+      opencode, Codex CLI and Claude Code, and starts the tools with the key in
+      the environment.
+    license: AGPL-3.0-or-later
+    section: devel
+    priority: optional
+    bindir: /usr/bin
+    contents:
+      - src: LICENSE
+        dst: /usr/share/doc/ulgen/copyright
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-snapshot"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^Merge "
+
+release:
+  draft: true
+  prerelease: auto

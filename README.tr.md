@@ -1,0 +1,115 @@
+# Ülgen
+
+[English](README.md)
+
+Ülgen, Savunma Sanayii Başkanlığı'nın (SSB) işlettiği model API'si [EVREN](docs/evren.md)'i, zaten kullandığınız açık kaynak kodlama araçlarına bağlar: Qwen Code, opencode, Codex CLI ve Claude Code.
+
+Bu araçlar zaten iyi çalışıyor, EVREN de yetenekli açık ağırlıklı modeller sunuyor. Eksik olan aradaki parça: giriş yapmak, anahtarı güvende tutmak, kullanım koşullarını kabul etmek, kotayı izlemek, her aracın ayarını doğru yazmak ve Türkçe arayüz. Ülgen bu parçadır. Tek bir programdır; yeni bir kodlama ajanı değildir.
+
+Adını Türk mitolojisindeki yaratıcı tanrı Ülgen'den alır. Komutun adı `ulgen`.
+
+## Kurulum
+
+Linux ve macOS:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.ps1 | iex
+```
+
+Pardus, Debian ve Ubuntu paketleri, kaynaktan derleme ve indirilen dosyanın doğrulanması için: [docs/install.md](docs/install.md).
+
+## İlk kullanım
+
+Bir EVREN hesabı (giriş e-Devlet ile yapılır) ve desteklenen araçlardan birinin kurulu olması gerekir.
+
+```sh
+ulgen
+```
+
+Bu kadar. İlk çalıştırmada Ülgen giriş yaptırır, kurulu araçları bulur, hangisini istediğinizi sorar, onu EVREN için ayarlar ve başlatır. Sonraki çalıştırmalarda aynı aracı doğrudan başlatır; `ulgen opencode` (ya da `qwen`, `codex`, `claude`) başka bir araca geçer, adın ardından yazdıklarınız araca iletilir.
+
+Her adım ayrı bir komut olarak da durur:
+
+```sh
+ulgen login        # EVREN'in API anahtarı sayfasını açar, anahtarı sorar, koşulları gösterir, anahtarı kaydeder
+ulgen setup qwen   # EVREN sağlayıcısını Qwen Code'a yazar
+ulgen run qwen     # Qwen Code'u, anahtarı ortam değişkeni olarak vererek başlatır
+```
+
+`ulgen status` kalan günlük kotayı ve modelleri gösterir. Tek başına `ulgen setup`, araçları ve durumlarını listeler. Bir şey çalışmadığında `ulgen doctor` anahtarı, EVREN'i ve her aracı denetler, ne yapmanız gerektiğini söyler.
+
+## Desteklenen araçlar
+
+| Araç | `ulgen setup <ad>` | Kurulumun yazdığı |
+|---|---|---|
+| Qwen Code | `qwen` | `settings.json` içine EVREN modelleri |
+| opencode | `opencode` | `opencode.json` içine EVREN sağlayıcısı |
+| Codex CLI | `codex` | Kendine ait bir profil dosyası, `evren.config.toml`; sizin `config.toml` dosyanıza hiç yazılmaz |
+| Claude Code | `claude` | Yalnızca EVREN işçileri için bir beceri dosyası; `ulgen run claude` ayar dosyası gerektirmez |
+
+Değişen her dosyanın önce yedeği alınır; `--dry-run` değişikliği yazmadan gösterir. `ulgen setup --remove <ad>` kurulumu geri alır: Ülgen'in yazdığı gider, sizin yazdığınız kalır.
+
+## Komutlar
+
+```
+  ulgen            giriş yapar, araç seçtirir, aracı ayarlar ve başlatır
+  ulgen <araç>     aynısını tek bir araç için yapar: qwen, opencode, codex, claude
+
+  ulgen login      EVREN'e giriş: API anahtarı sayfasını açar, anahtarı kaydeder, koşulların kabulünü kaydeder
+  ulgen logout     kayıtlı anahtarı siler
+  ulgen status     kalan günlük kota ve modeller
+  ulgen doctor     anahtarı, EVREN'i ve araçları denetler; yanlış olan için ne yapılacağını söyler
+  ulgen setup      kodlama araçlarını EVREN için ayarlar (qwen, opencode, codex, claude)
+  ulgen run        bir aracı, anahtarı ortam değişkeni olarak vererek başlatır; Claude Code'u çevirici üzerinden
+
+İleri düzey:
+  ulgen worker     bir EVREN modelinde, bir görevi gözetimsiz yapmak için tek bir etkileşimsiz Claude Code çalıştırır
+  ulgen proxy      çeviriciyi tek başına çalıştırır; Anthropic API'sini konuşan bir program için
+  ulgen token      kayıtlı anahtarı başka bir programa verir
+  ulgen version    sürümü yazdırır
+```
+
+Bir komutun seçenekleri için `ulgen <komut> -h` yazın. Bütün komutlar sistem dilini izler: Türkçe ya da İngilizce.
+
+Ayrıntılı Türkçe kılavuz: [docs/tr/evren-ile-kodlama-araclari.md](docs/tr/evren-ile-kodlama-araclari.md).
+
+## Anahtarınız sizde kalır
+
+- İşletim sisteminin kimlik deposunda saklanır (sistemde yoksa yalnızca sizin okuyabildiğiniz bir dosyada), o da ancak EVREN anahtarı kabul ettikten sonra.
+- Hiçbir aracın ayar dosyasına yazılmaz; araçlar onu, `ulgen run` kendilerini başlatırken ortam değişkeninden alır.
+- Ekrana ya da günlüğe yazılmaz; sunucudan dönen hata iletilerinden de çıkarılır.
+- Claude Code anahtarı hiç almaz: kendi makinenizde, Ülgen'in içindeki bir çeviriciyle konuşur.
+- `ulgen run`, kendi ayar dosyası anahtarı başka bir adrese gönderebilecek bir projede aracı başlatmaz.
+
+Bu ve diğer kararların gerekçeleri: [docs/design.md](docs/design.md) (İngilizce).
+
+## Bilinen sınırlar
+
+- Anthropic, Claude Code'un başka modellerle kullanılmasını desteklemez. `ulgen run claude` bir çevirici üzerinden çalışır ve bunu her çalıştırmada bir kez söyler.
+- Claude Code'un EVREN'de gösterdiği token sayıları tahminidir.
+- Windows'ta, başlatıcısı npm'in yazdığı standart dosya olmayan bir araç `cmd.exe` üzerinden başlatılır; o durumda argüman `"`, `%`, `^` ya da `!` içeremez.
+
+## Derleme
+
+Go 1.26 ya da daha yenisi.
+
+```sh
+go build ./cmd/ulgen   # ./ulgen dosyasını üretir (Windows'ta ulgen.exe)
+go test ./...
+```
+
+## Katkı
+
+[CONTRIBUTING.md](CONTRIBUTING.md) dosyasına bakın. Güvenlik sorunları herkese açık değil, özel olarak bildirilir: [SECURITY.md](SECURITY.md).
+
+Ülgen bağımsız, ticari olmayan bir projedir. SSB, EVREN ya da ayarladığı araçların yapımcılarıyla bir bağı yoktur.
+
+## Lisans
+
+[AGPL-3.0-only](LICENSE).

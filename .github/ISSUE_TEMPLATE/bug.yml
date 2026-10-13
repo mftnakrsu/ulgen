@@ -1,0 +1,42 @@
+name: Bug report / Hata bildirimi
+description: Something does not work as it should. Türkçe yazabilirsiniz.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste your EVREN key.** Ülgen hides it in its own output, but check what you paste.
+        **EVREN anahtarınızı asla yapıştırmayın.**
+  - type: input
+    id: version
+    attributes:
+      label: Ülgen version
+      description: The output of `ulgen version`
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Operating system
+      placeholder: Pardus 23, Windows 11, macOS 15 ...
+    validations:
+      required: true
+  - type: input
+    id: tool
+    attributes:
+      label: Tool and its version
+      placeholder: Qwen Code 0.25.1, opencode ..., Codex CLI ..., Claude Code ...
+  - type: textarea
+    id: steps
+    attributes:
+      label: What you did
+      description: The commands, in order.
+      render: sh
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true

@@ -1,0 +1,6 @@
+{
+  "name": "evren-workers",
+  "description": "A skill that teaches Claude Code when and how to hand a fully specified task to an EVREN worker, a headless Claude Code process on a free EVREN model started with \"ulgen worker\", and how to check its result.",
+  "version": "0.1.0",
+  "license": "AGPL-3.0-only"
+}

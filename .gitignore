@@ -1,0 +1,22 @@
+# Secrets
+.env
+.env.*
+*.key
+
+# Build output
+/bin/
+/dist/
+/target/
+node_modules/
+/ulgen
+/ulgen.exe
+*.test
+/coverage.out
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent worktrees created by Claude Code sessions.
+.claude/worktrees/
+

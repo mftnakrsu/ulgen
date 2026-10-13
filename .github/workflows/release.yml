@@ -1,0 +1,224 @@
+# Package Ülgen.
+#
+# Pushing a tag that begins with "v" builds the release files and creates a
+# GitHub release as a draft; the owner reads it and publishes it by hand.
+# Every other trigger (a manual run, or a pull request touching this file, the
+# GoReleaser file or the installers) builds the same files as a snapshot and
+# uploads them as a workflow artifact. A snapshot publishes nothing.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .goreleaser.yaml
+      - .github/workflows/release.yml
+      - scripts/install.*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  snapshot:
+    name: snapshot
+    if: github.ref_type != 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Check the GoReleaser file
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: check
+      - name: Build a snapshot
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: release --snapshot --clean --skip=sign
+      - name: Upload the snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/*.deb
+            dist/*.rpm
+            dist/checksums.txt
+          retention-days: 7
+          if-no-files-found: error
+
+  install-windows:
+    name: install.ps1
+    needs: snapshot
+    if: github.ref_type != 'tag'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Download the snapshot
+        uses: actions/download-artifact@v4
+        with:
+          name: snapshot
+          path: dist
+      - name: Install and check with install.ps1
+        shell: pwsh
+        run: |
+          $archive = Get-ChildItem -Path dist -Filter 'ulgen_*_windows_amd64.zip' | Select-Object -First 1
+          if (-not $archive) { throw 'the snapshot has no windows amd64 archive' }
+          if ($archive.Name -notmatch '^ulgen_(.+)_windows_amd64\.zip$') { throw "unexpected archive name: $($archive.Name)" }
+          $version = $Matches[1]
+
+          # Lay the release out as <rel>/v<version>/ and serve it from there.
+          $rel = Join-Path $env:RUNNER_TEMP 'rel'
+          $relVersion = Join-Path $rel "v$version"
+          New-Item -ItemType Directory -Path $relVersion -Force | Out-Null
+          Copy-Item -Path (Join-Path 'dist' '*') -Destination $relVersion -Force
+
+          $env:ULGEN_TEST_ALLOW_FILE = '1'
+          $env:ULGEN_BASE_URL = ([System.Uri]$rel).AbsoluteUri
+          $env:ULGEN_VERSION = $version
+          $env:ULGEN_INSTALL_DIR = Join-Path $env:RUNNER_TEMP 'installed'
+          & scripts\install.ps1 -NoPathUpdate
+
+          $output = & (Join-Path $env:ULGEN_INSTALL_DIR 'ulgen.exe') --version
+          Write-Output $output
+          if ($output -notmatch [regex]::Escape($version)) { throw "ulgen --version did not mention $version" }
+
+  install-unix:
+    name: install.sh (${{ matrix.os }})
+    needs: snapshot
+    if: github.ref_type != 'tag'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Download the snapshot
+        uses: actions/download-artifact@v4
+        with:
+          name: snapshot
+          path: dist
+      - name: Serve and install with install.sh
+        shell: bash
+        run: |
+          set -eu
+          case "$RUNNER_OS" in
+          Linux) goos=linux ;;
+          macOS) goos=darwin ;;
+          *) echo "unknown runner: $RUNNER_OS" >&2; exit 1 ;;
+          esac
+          archive=$(ls dist/ulgen_*_"$goos"_*.tar.gz | head -n 1)
+          name=$(basename "$archive")
+          version=$(printf '%s' "$name" | sed -E 's/^ulgen_(.+)_(linux|darwin)_(amd64|arm64)\.tar\.gz$/\1/')
+
+          # Serve <rel>/v<version>/ on the local machine.
+          rel="$RUNNER_TEMP/rel/v$version"
+          mkdir -p "$rel"
+          cp dist/* "$rel/"
+
+          port=8765
+          python3 -m http.server "$port" --bind 127.0.0.1 --directory "$RUNNER_TEMP/rel" >/dev/null 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+
+          # Wait for the server, up to 30 tries with one second between.
+          ready=0
+          for _ in $(seq 1 30); do
+            if curl -fs "http://127.0.0.1:$port/" >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != 1 ]; then
+            echo "the local server did not come up on port $port" >&2
+            exit 1
+          fi
+
+          ULGEN_BASE_URL="http://127.0.0.1:$port" ULGEN_VERSION="$version" sh scripts/install.sh
+
+          "$HOME/.local/bin/ulgen" --version | tee /tmp/ulgen-version.txt
+          grep -qF "$version" /tmp/ulgen-version.txt
+
+  install-packages:
+    name: ${{ matrix.name }} package
+    needs: snapshot
+    if: github.ref_type != 'tag'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: deb
+            image: debian:stable-slim
+            install: apt-get install -y ./dist/ulgen_*_amd64.deb
+          - name: rpm
+            image: fedora:latest
+            install: dnf install -y ./dist/ulgen_*_amd64.rpm
+    steps:
+      - name: Download the snapshot
+        uses: actions/download-artifact@v4
+        with:
+          name: snapshot
+          path: dist
+      - name: Install the package in a clean ${{ matrix.image }} and run it
+        run: |
+          docker run --rm -v "$PWD/dist:/dist:ro" -w / ${{ matrix.image }} sh -euc '
+            ${{ matrix.install }} >/dev/null
+            test -x /usr/bin/ulgen
+            ulgen version
+            ulgen --help | head -n 3
+            test -s /usr/share/doc/ulgen/copyright
+          '
+
+  release:
+    name: release
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write # cosign signs the checksum file with the workflow's identity
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Check the GoReleaser file
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: check
+      - uses: sigstore/cosign-installer@v3
+      - name: Release
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
