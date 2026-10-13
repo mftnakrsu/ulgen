@@ -278,6 +278,101 @@ func TestToOpenAIMessages(t *testing.T) {
 	}
 }
 
+// TestToOpenAISystemMessages covers a message whose role is system. Claude
+// Code sends one after the first user turn to a model it does not know, and it
+// carries the working directory, the platform and the date; a translator that
+// leaves it out leaves the model to guess where it is. EVREN's models do not
+// all take a system message in that place, so its text travels in the user
+// turn next to it.
+func TestToOpenAISystemMessages(t *testing.T) {
+	const toolTurn = `{"role":"user","content":"time?"},{"role":"assistant","content":[{"type":"tool_use","id":"toolu_1","name":"clock","input":{}}]}`
+	const toolTurnOut = `{"role":"user","content":"time?"},{"role":"assistant","tool_calls":[{"id":"toolu_1","type":"function","function":{"name":"clock","arguments":"{}"}}]}`
+	tests := []struct {
+		name string
+		body string
+		want string
+	}{
+		{
+			name: "after the first user turn it joins that turn",
+			body: `{"system":"be brief","messages":[{"role":"user","content":"hi"},{"role":"system","content":"# Environment\n - Primary working directory: /work"}]}`,
+			want: `{"model":"m","messages":[{"role":"system","content":"be brief"},{"role":"user","content":[{"type":"text","text":"hi"},{"type":"text","text":"<system-reminder>\n# Environment\n - Primary working directory: /work\n</system-reminder>"}]}]}`,
+		},
+		{
+			name: "after a turn of tool results it follows the tool messages",
+			body: `{"messages":[` + toolTurn + `,{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_1","content":"12:00"}]},{"role":"system","content":"note"}]}`,
+			want: `{"model":"m","messages":[` + toolTurnOut + `,{"role":"tool","tool_call_id":"toolu_1","content":"12:00"},{"role":"user","content":[{"type":"text","text":"<system-reminder>\nnote\n</system-reminder>"}]}]}`,
+		},
+		{
+			name: "before a turn of tool results it still follows the tool messages",
+			body: `{"messages":[` + toolTurn + `,{"role":"system","content":"note"},{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_1","content":"12:00"}]}]}`,
+			want: `{"model":"m","messages":[` + toolTurnOut + `,{"role":"tool","tool_call_id":"toolu_1","content":"12:00"},{"role":"user","content":[{"type":"text","text":"<system-reminder>\nnote\n</system-reminder>"}]}]}`,
+		},
+		{
+			name: "with no user turn before it, it joins the one after it",
+			body: `{"messages":[{"role":"system","content":"note"},{"role":"user","content":"hi"}]}`,
+			want: `{"model":"m","messages":[{"role":"user","content":[{"type":"text","text":"<system-reminder>\nnote\n</system-reminder>"},{"type":"text","text":"hi"}]}]}`,
+		},
+		{
+			name: "with no user turn next to it, it is a user message of its own",
+			body: `{"messages":[{"role":"user","content":"hi"},{"role":"assistant","content":"one"},{"role":"system","content":"note"},{"role":"assistant","content":"two"}]}`,
+			want: `{"model":"m","messages":[{"role":"user","content":"hi"},{"role":"assistant","content":"one"},{"role":"user","content":[{"type":"text","text":"<system-reminder>\nnote\n</system-reminder>"}]},{"role":"assistant","content":"two"}]}`,
+		},
+		{
+			name: "at the end, after an assistant turn, it is a user message of its own",
+			body: `{"messages":[{"role":"user","content":"hi"},{"role":"assistant","content":"one"},{"role":"system","content":"note"}]}`,
+			want: `{"model":"m","messages":[{"role":"user","content":"hi"},{"role":"assistant","content":"one"},{"role":"user","content":[{"type":"text","text":"<system-reminder>\nnote\n</system-reminder>"}]}]}`,
+		},
+		{
+			name: "several in a row join the same turn in their order",
+			body: `{"messages":[{"role":"user","content":"hi"},{"role":"system","content":"a"},{"role":"system","content":"b"}]}`,
+			want: `{"model":"m","messages":[{"role":"user","content":[{"type":"text","text":"hi"},{"type":"text","text":"<system-reminder>\na\n</system-reminder>"},{"type":"text","text":"<system-reminder>\nb\n</system-reminder>"}]}]}`,
+		},
+		{
+			name: "its text blocks are joined like the system field's",
+			body: `{"messages":[{"role":"user","content":"hi"},{"role":"system","content":[{"type":"text","text":"one","cache_control":{"type":"ephemeral"}},{"type":"text","text":"two"}]}]}`,
+			want: `{"model":"m","messages":[{"role":"user","content":[{"type":"text","text":"hi"},{"type":"text","text":"<system-reminder>\none\n\ntwo\n</system-reminder>"}]}]}`,
+		},
+		{
+			name: "an empty one changes nothing",
+			body: `{"messages":[{"role":"user","content":"hi"},{"role":"system","content":""},{"role":"system","content":[]}]}`,
+			want: `{"model":"m","messages":[{"role":"user","content":"hi"}]}`,
+		},
+		{
+			name: "a message of an unknown role is still left out",
+			body: `{"messages":[{"role":"user","content":"hi"},{"role":"developer","content":"x"}]}`,
+			want: `{"model":"m","messages":[{"role":"user","content":"hi"}]}`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) { assertRequest(t, tt.body, tt.want) })
+	}
+}
+
+// TestFoldSystemMessagesLeavesTheRequestAlone checks that joining a system
+// message to a user turn builds new content: the request that was decoded is
+// read again for the token estimate and must not have grown.
+func TestFoldSystemMessagesLeavesTheRequestAlone(t *testing.T) {
+	var req anthropicRequest
+	body := `{"messages":[{"role":"user","content":[{"type":"text","text":"hi"}]},{"role":"system","content":"note"}]}`
+	if err := json.Unmarshal([]byte(body), &req); err != nil {
+		t.Fatal(err)
+	}
+	// Room to grow in place, which is where an append would write.
+	blocks := make([]contentBlock, 1, 4)
+	copy(blocks, req.Messages[0].Content.blocks)
+	req.Messages[0].Content.blocks = blocks
+	folded := foldSystemMessages(req.Messages)
+	if len(folded) != 1 || len(folded[0].Content.blocks) != 2 {
+		t.Fatalf("folded = %+v, want one user turn of two blocks", folded)
+	}
+	if len(req.Messages) != 2 || len(req.Messages[0].Content.blocks) != 1 {
+		t.Fatalf("the request was changed: %+v", req.Messages)
+	}
+	if got := blocks[:2][1]; got.Text != "" {
+		t.Fatalf("the request's own blocks were written to: %+v", got)
+	}
+}
+
 // TestToOpenAIEmptyTextBlocks covers finding 5: an empty text block is dropped
 // wherever content parts are built, and a text part always carries its text
 // member.

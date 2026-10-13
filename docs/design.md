@@ -122,6 +122,14 @@ run.
   system picks.
 - **Unknown fields are dropped, not passed on.** Thinking is not requested;
   reasoning a model sends anyway is shown as a thinking block.
+- **A system message between the turns travels in a user turn.** To a model
+  it does not know, Claude Code sends the working directory, the platform and
+  the date in a message of role `system` after the first user turn, and a
+  short one after every later turn. Left out, the model has to guess where it
+  is, and it searches the disk for the project. EVREN's models do not all take
+  a system message in that place (one refuses the request, one ignores the
+  message), so its text is put into the user turn next to it, inside the
+  `<system-reminder>` tags Claude Code itself uses for such notes.
 - **Token counts are estimates**, UTF-8 bytes divided by 3 and rounded up,
   erring high so Claude Code compacts early rather than late.
 - **A refused key is reported as a plain error that names `ulgen login`**,
