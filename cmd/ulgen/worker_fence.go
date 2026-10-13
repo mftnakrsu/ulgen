@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	osexec "os/exec"
 	"path/filepath"
@@ -206,17 +207,71 @@ func (l *workerLaunch) sandboxSettings(env setup.Env) (string, *failure) {
 	return settings, nil
 }
 
-// createWorkerOut prepares the --out file before the child is started: the
-// directory must exist and the file must be creatable. It is created, or
-// truncated, with mode 0600, and an existing file's mode is set to 0600.
-func createWorkerOut(path string) error {
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+// The two refusals that keep --out from being written through a link. They
+// are the reason part of a message, like the system's own error texts.
+var (
+	errWorkerOutNotAFile = errors.New("it is not a regular file")
+	errWorkerOutReplaced = errors.New("the file was replaced while the worker ran")
+)
+
+// openWorkerOut prepares the --out file before the child is started and
+// returns it open: the directory must exist and the path must name a regular
+// file or nothing. The file is created, or emptied, with mode 0600. A symbolic
+// link is refused, and so is anything else that is not a regular file. Ülgen
+// writes --out itself, outside the sandbox, and the worker can write where
+// --out often lies (under --dir, in the temporary directory): a link there
+// would send the answer to a file of the link's choosing. The file is emptied
+// only once the opened file is known to be the one the path names.
+func openWorkerOut(path string) (*os.File, error) {
+	if info, err := os.Lstat(path); err == nil && !info.Mode().IsRegular() {
+		return nil, errWorkerOutNotAFile
+	}
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0o600)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	if !namesFile(path, f) {
+		f.Close()
+		return nil, errWorkerOutNotAFile
+	}
+	if err := f.Truncate(0); err != nil {
+		f.Close()
+		return nil, err
 	}
 	if err := f.Chmod(0o600); err != nil {
 		f.Close()
-		return err
+		return nil, err
 	}
-	return f.Close()
+	return f, nil
+}
+
+// namesFile reports whether path names the regular file that f has open. A
+// symbolic link at the path is not followed, so a link to that very file does
+// not count either.
+func namesFile(path string, f *os.File) bool {
+	at, err := os.Lstat(path)
+	if err != nil || !at.Mode().IsRegular() {
+		return false
+	}
+	open, err := f.Stat()
+	return err == nil && os.SameFile(at, open)
+}
+
+// writeWorkerOut writes the child's standard output, unchanged, to the file
+// that was opened before the child started, and closes it. It writes to the
+// open file and not to the path again: a link the worker put at the path
+// while it ran is then not followed. A path that no longer names that file is
+// an error, because the answer is not where the user will look for it.
+func writeWorkerOut(path string, f *os.File, out []byte) error {
+	err := f.Truncate(0)
+	if err == nil {
+		_, err = f.WriteAt(out, 0)
+	}
+	if err == nil && !namesFile(path, f) {
+		err = errWorkerOutReplaced
+	}
+	if cerr := f.Close(); err == nil {
+		err = cerr
+	}
+	return err
 }

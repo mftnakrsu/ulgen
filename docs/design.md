@@ -163,6 +163,11 @@ prompt, so the fence is built before the process starts.
   `--no-sandbox`.
 - **`--dir` is resolved and checked**: a symbolic link to the root or to the
   home directory is refused.
+- **`--out` is never written through a link.** Ülgen writes that file itself,
+  outside the sandbox, and the worker can often write next to it. The file is
+  opened before the worker starts and the answer goes to that open file; a
+  symbolic link at the path is refused, and a path that names another file at
+  the end is reported.
 - **No commit or push by default.** A worker changes files; the session that
   started it checks and commits.
 - **A timeout ends everything the worker started**, its process group
