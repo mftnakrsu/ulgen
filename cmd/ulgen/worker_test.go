@@ -942,6 +942,64 @@ func TestWorkerOutWriteFailure(t *testing.T) {
 	}
 }
 
+// An --out that is a symbolic link is refused before anything is started, and
+// the file the link names is left as it was. Ülgen writes --out itself,
+// outside the worker's sandbox, so a link there would send the answer to a
+// file of the link's choosing.
+func TestWorkerOutRefusesASymbolicLink(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("making a symbolic link needs a privilege here")
+	}
+	dir := t.TempDir()
+	target := filepath.Join(dir, "elsewhere")
+	if err := os.WriteFile(target, []byte("keep me"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	outFile := filepath.Join(dir, "result.json")
+	if err := os.Symlink(target, outFile); err != nil {
+		t.Fatal(err)
+	}
+	code, stdout, stderr, s := runWorkerWith(t, 0, []byte(workerJSON), "--out", outFile)
+	if code != exitError || stdout != "" || s.calls != 0 || !strings.HasPrefix(stderr, "ulgen: the --out file ") {
+		t.Errorf("code %d stdout %q stderr %q, %d starts", code, stdout, stderr, s.calls)
+	}
+	got, err := os.ReadFile(target)
+	fi, statErr := os.Stat(target)
+	if err != nil || string(got) != "keep me" || statErr != nil || fi.Mode().Perm() != 0o644 {
+		t.Errorf("the linked file was touched: %q (%v), mode %v (%v)", got, err, fi.Mode().Perm(), statErr)
+	}
+}
+
+// A link that takes the place of --out while the worker runs is not followed:
+// the file it names stays as it was, and the run says the answer could not be
+// written.
+func TestWorkerOutSwappedForALinkDuringTheRun(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("making a symbolic link needs a privilege here")
+	}
+	dir := t.TempDir()
+	target := filepath.Join(dir, "elsewhere")
+	if err := os.WriteFile(target, []byte("keep me"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	outFile := filepath.Join(dir, "result.json")
+	useClaude(t, nil)
+	vars := signedIn(t)
+	url := workerServer(t)
+	s := useFakeWorkerChild(t, 0, []byte(workerJSON), nil)
+	s.hook = func() { // what a worker that can write next to --out could do
+		_ = os.Remove(outFile)
+		_ = os.Symlink(target, outFile)
+	}
+	code, stdout, stderr := exec(t, context.Background(), vars, "worker", "--base-url", url, "--out", outFile, writeTask(t, "x"))
+	if code != exitError || !strings.Contains(stderr, "could not be written") || !strings.Contains(stdout, "all done") {
+		t.Errorf("code %d stdout %q stderr %q", code, stdout, stderr)
+	}
+	if got, err := os.ReadFile(target); err != nil || string(got) != "keep me" {
+		t.Errorf("the linked file was written to: %q (%v)", got, err)
+	}
+}
+
 // A child that ended by itself keeps its own code even when the deadline
 // passes a moment later.
 func TestWorkerDeadlineAfterNormalEndKeepsTheCode(t *testing.T) {

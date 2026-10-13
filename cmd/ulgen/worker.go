@@ -376,6 +376,10 @@ type workerLaunch struct {
 	started    time.Time
 
 	code int // the exit code the run ended with
+
+	// outFile is --out, open from before the child starts until its answer is
+	// written; nil without --out.
+	outFile *os.File
 }
 
 // run is the whole of the worker after option parsing: it reads the task,
@@ -407,6 +411,8 @@ func (l *workerLaunch) run() *failure {
 	if f := l.prepareOut(); f != nil {
 		return f
 	}
+	// A run that ends before the summary leaves the file empty.
+	defer l.closeOut()
 
 	// Claude Code must be installed.
 	tool, _ := setup.Lookup("claude")
@@ -519,18 +525,29 @@ func (l *workerLaunch) run() *failure {
 	return nil
 }
 
-// prepareOut checks --out before the child is started: the directory must
-// exist and the file must be creatable. It is created (or truncated) with mode
-// 0600, and an existing file's mode is set to 0600. A failure returns a
-// message and exit 1, with nothing started.
+// prepareOut opens --out before the child is started: the directory must
+// exist and the path must name a regular file or nothing. The file is created
+// (or emptied) with mode 0600, an existing file's mode is set to 0600, and it
+// stays open until the answer is written. A failure returns a message and
+// exit 1, with nothing started.
 func (l *workerLaunch) prepareOut() *failure {
 	if l.opts.out == "" {
 		return nil
 	}
-	if err := createWorkerOut(l.opts.out); err != nil {
+	f, err := openWorkerOut(l.opts.out)
+	if err != nil {
 		return &failure{msg: l.tr.T("worker.out_not_creatable", safeArg(l.opts.out), oneLine(err.Error())), code: exitError}
 	}
+	l.outFile = f
 	return nil
+}
+
+// closeOut closes --out when the summary did not write it.
+func (l *workerLaunch) closeOut() {
+	if l.outFile != nil {
+		l.outFile.Close()
+		l.outFile = nil
+	}
 }
 
 // readTask reads the task: standard input for "-", else the file. An empty
@@ -664,8 +681,9 @@ func (l *workerLaunch) summary(status string, out []byte, model string) {
 	fmt.Fprintln(l.stdout, "ulgen: "+tr.T("worker.summary.status",
 		tr.T("worker.status."+status), model, l.seconds()))
 
-	if l.opts.out != "" {
-		if err := writeWorkerOut(l.opts.out, out); err != nil {
+	if f := l.outFile; f != nil {
+		l.outFile = nil
+		if err := writeWorkerOut(l.opts.out, f, out); err != nil {
 			fmt.Fprintln(l.stderr, "ulgen: "+tr.T("worker.out_failed", safeArg(l.opts.out), oneLine(err.Error())))
 			if l.code == 0 {
 				l.code = exitError
@@ -700,12 +718,6 @@ func (l *workerLaunch) seconds() int {
 		return int(d.Seconds())
 	}
 	return 0
-}
-
-// writeWorkerOut writes the child's standard output to path unchanged, with
-// owner-only permissions: it is the worker's whole answer.
-func writeWorkerOut(path string, out []byte) error {
-	return os.WriteFile(path, out, 0o600)
 }
 
 // workerMaxDenialLines is how many refused tool calls the summary lists.
