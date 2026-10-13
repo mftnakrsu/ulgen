@@ -20,6 +20,10 @@ Those tools already work well, and EVREN serves capable open-weight models. What
 
 The name comes from Ülgen, the creator deity of Turkic mythology. The command is `ulgen`.
 
+<p align="center">
+  <img src="docs/assets/demo.gif" alt="ulgen doctor, ulgen status, and Claude Code answering a question about a file through EVREN" width="760">
+</p>
+
 ## Install
 
 Linux and macOS:
@@ -55,6 +59,19 @@ ulgen run qwen     # starts Qwen Code with the key in its environment
 ```
 
 `ulgen status` shows the remaining daily quota and the models. `ulgen setup` on its own lists the tools and their state. When something does not work, `ulgen doctor` checks the key, EVREN and every tool and says what to do.
+
+## What you can do with it
+
+```sh
+ulgen                                   # pick a tool once, then just start coding
+ulgen claude                            # Claude Code on an EVREN model, in the current project
+ulgen qwen -p "explain this repository" # one question, answered in the terminal
+ulgen doctor                            # something is off: what, and what to do about it
+ulgen status                            # how much of today's quota is left
+ulgen setup --remove all                # take Ülgen's settings out of every tool again
+```
+
+The recording above is real: `ulgen doctor`, `ulgen status`, then Claude Code reading a file and answering through EVREN. It is made from [docs/assets/demo.tape](docs/assets/demo.tape) with [vhs](https://github.com/charmbracelet/vhs), played back faster than it ran.
 
 ## Supported tools
 

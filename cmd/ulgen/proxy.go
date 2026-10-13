@@ -68,6 +68,7 @@ type translatorSetup struct {
 	small      string
 	baseURL    string
 	maxOutputs int
+	context    int // the chosen model's context window; 0 when EVREN gives none
 }
 
 // setupTranslator resolves the key, asks EVREN for its models and chooses the
@@ -110,6 +111,7 @@ func setupTranslator(ctx context.Context, opts proxyOptions, getenv func(string)
 		small:      smallModel(models, def),
 		baseURL:    base,
 		maxOutputs: outputLimit(models, def),
+		context:    contextWindow(models, def),
 	}, cred.Secret, nil
 }
 
@@ -132,6 +134,16 @@ func outputLimit(models []setup.Model, def string) int {
 	for _, m := range models {
 		if m.ID == def {
 			return m.MaxOutput
+		}
+	}
+	return 0
+}
+
+// contextWindow returns the chosen model's context window, or 0.
+func contextWindow(models []setup.Model, def string) int {
+	for _, m := range models {
+		if m.ID == def {
+			return m.Context
 		}
 	}
 	return 0
