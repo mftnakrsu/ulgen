@@ -20,6 +20,10 @@ Bu araçlar zaten iyi çalışıyor, EVREN de yetenekli açık ağırlıklı mod
 
 Adını Türk mitolojisindeki yaratıcı tanrı Ülgen'den alır. Komutun adı `ulgen`.
 
+<p align="center">
+  <img src="docs/assets/demo.gif" alt="ulgen doctor, ulgen status ve Claude Code'un EVREN üzerinden bir dosya hakkındaki soruyu yanıtlaması" width="760">
+</p>
+
 ## Kurulum
 
 Linux ve macOS:
@@ -55,6 +59,19 @@ ulgen run qwen     # Qwen Code'u, anahtarı ortam değişkeni olarak vererek ba�
 ```
 
 `ulgen status` kalan günlük kotayı ve modelleri gösterir. Tek başına `ulgen setup`, araçları ve durumlarını listeler. Bir şey çalışmadığında `ulgen doctor` anahtarı, EVREN'i ve her aracı denetler, ne yapmanız gerektiğini söyler.
+
+## Neler yapabilirsiniz
+
+```sh
+ulgen                                   # aracı bir kez seçin, sonra doğrudan kodlamaya başlayın
+ulgen claude                            # bulunduğunuz projede, bir EVREN modeliyle Claude Code
+ulgen qwen -p "bu depoyu açıkla"        # tek bir soru, yanıtı terminalde
+ulgen doctor                            # bir şey ters gidiyorsa: ne olduğu ve ne yapılacağı
+ulgen status                            # bugünkü kotadan ne kadar kaldığı
+ulgen setup --remove all                # Ülgen'in ayarlarını bütün araçlardan geri alır
+```
+
+Yukarıdaki kayıt gerçektir: `ulgen doctor`, `ulgen status`, ardından Claude Code bir dosyayı okuyup EVREN üzerinden yanıt veriyor. Kayıt [docs/assets/demo.tape](docs/assets/demo.tape) dosyasından [vhs](https://github.com/charmbracelet/vhs) ile üretildi ve gerçekte olduğundan hızlı oynatılıyor.
 
 ## Desteklenen araçlar
 
