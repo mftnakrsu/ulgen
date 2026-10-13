@@ -22,10 +22,14 @@ type upstreamClient struct {
 
 // newUpstream returns a client for the EVREN API root baseURL with key. A nil
 // http client becomes one without an overall timeout, as the design asks: a
-// stream may run for as long as the model needs.
+// stream may run for as long as the model needs. That client follows no
+// redirect, like the client the other commands use: the key and the prompt go
+// to the address that was configured and to no other.
 func newUpstream(baseURL, key string, hc *http.Client) *upstreamClient {
 	if hc == nil {
-		hc = &http.Client{}
+		hc = &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		}}
 	}
 	return &upstreamClient{baseURL: strings.TrimRight(baseURL, "/"), key: key, http: hc}
 }
@@ -75,6 +79,11 @@ var fixedAuthMessages = map[int]string{
 func providerError(status int, body []byte, key string) *upstreamError {
 	if msg, ok := fixedAuthMessages[status]; ok {
 		return &upstreamError{Status: http.StatusBadRequest, Kind: "invalid_request_error", Message: msg}
+	}
+	// A redirect is not followed (see newUpstream), and its status would tell
+	// the client to go somewhere without saying where.
+	if status/100 == 3 {
+		return &upstreamError{Status: http.StatusBadGateway, Kind: "api_error", Message: "the provider answered with a redirect, which is not followed"}
 	}
 	msg := providerMessage(body)
 	if msg == "" {
@@ -198,28 +207,59 @@ func realErrorValue(raw json.RawMessage) bool {
 	}
 }
 
+// maxStreamEvent is how large one line, and the data of one event, of a
+// streaming answer may be. It is the bound of a whole answer that is not
+// streamed; no real event comes near it. Without a bound a provider that sends
+// one line without an end would fill the memory.
+const maxStreamEvent = maxProviderAnswer
+
+// errStreamEventTooLarge ends a stream whose line or event passed the bound.
+var errStreamEventTooLarge = &upstreamError{Status: http.StatusBadGateway, Kind: "api_error", Message: "the provider sent an event that is too large"}
+
 // sseReader reads server-sent events from a stream. It yields the data payload
 // of each event, joining several data lines with newlines. Line endings may be
-// \n or \r\n, lines may be any length, and comment lines are ignored.
+// \n or \r\n, and comment lines are ignored. A line, or the data of one
+// event, longer than limit ends the stream with errStreamEventTooLarge.
 type sseReader struct {
-	r    *bufio.Reader
-	data []string
-	have bool
+	r     *bufio.Reader
+	data  []string
+	have  bool
+	size  int // bytes of data collected for the current event
+	limit int
 }
 
 // newSSEReader returns a reader of server-sent events over r.
 func newSSEReader(r io.Reader) *sseReader {
-	return &sseReader{r: bufio.NewReader(r)}
+	return &sseReader{r: bufio.NewReader(r), limit: maxStreamEvent}
+}
+
+// readLine reads up to and including the next line end, like
+// bufio.Reader.ReadString, but gives up once the line is longer than limit.
+func (s *sseReader) readLine() (string, error) {
+	var line []byte
+	for {
+		part, err := s.r.ReadSlice('\n')
+		line = append(line, part...)
+		if len(line) > s.limit {
+			return "", errStreamEventTooLarge
+		}
+		if err != bufio.ErrBufferFull {
+			return string(line), err
+		}
+	}
 }
 
 // next returns the payload of the next event. A blank line dispatches the
 // event; a payload of [DONE] and the end of the stream both return io.EOF.
 func (s *sseReader) next() (string, error) {
 	for {
-		raw, err := s.r.ReadString('\n')
+		raw, err := s.readLine()
 		line := strings.TrimRight(raw, "\r\n")
 		if line != "" {
 			s.consume(line)
+			if s.size > s.limit {
+				return "", errStreamEventTooLarge
+			}
 		} else if s.have {
 			return s.dispatch()
 		}
@@ -244,6 +284,7 @@ func (s *sseReader) dispatch() (string, error) {
 	payload := strings.Join(s.data, "\n")
 	s.data = s.data[:0]
 	s.have = false
+	s.size = 0
 	if strings.TrimSpace(payload) == "[DONE]" {
 		return "", io.EOF
 	}
@@ -265,4 +306,5 @@ func (s *sseReader) consume(line string) {
 	}
 	s.data = append(s.data, value)
 	s.have = true
+	s.size += len(value)
 }

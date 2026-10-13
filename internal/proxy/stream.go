@@ -207,6 +207,14 @@ type streamTranslator struct {
 	current  int   // index of the open or last tool call, -1 when none
 	toolSent bool  // at least one tool-use block was opened
 
+	// held counts the argument text kept back for calls that could not be
+	// sent yet; past heldLimit nothing more is kept and overflow is set, which
+	// ends the stream. A provider could otherwise fill the memory with
+	// fragments of a call that never gets a name.
+	held      int
+	heldLimit int
+	overflow  bool
+
 	stopReason string
 	haveFinish bool
 	usage      *openAIUsage
@@ -218,7 +226,7 @@ type streamTranslator struct {
 // newStreamTranslator returns a translator for a message that names model and
 // restores tool names through names.
 func newStreamTranslator(model string, names nameMap) *streamTranslator {
-	return &streamTranslator{model: model, names: names, calls: map[int]*toolCall{}, current: -1}
+	return &streamTranslator{model: model, names: names, calls: map[int]*toolCall{}, current: -1, heldLimit: maxStreamEvent}
 }
 
 // Feed takes one decoded provider chunk and returns the events to send. Once
@@ -364,12 +372,12 @@ func (t *streamTranslator) toolCall(idx int, call streamToolCall) []event {
 	}
 	if t.blockOpen && t.blockKind == "tool_use" {
 		// Another call is current: keep this fragment for the end.
-		c.args += args
+		t.hold(c, args)
 		return nil
 	}
 	if c.name == "" {
 		// The name is not known yet: keep everything until it arrives.
-		c.args += args
+		t.hold(c, args)
 		return nil
 	}
 	// The call becomes current: open its block, then send the arguments that
@@ -404,6 +412,17 @@ func (t *streamTranslator) toolCall(idx int, call streamToolCall) []event {
 		out = append(out, t.delta(inputJSONDelta{Type: "input_json_delta", PartialJSON: args})...)
 	}
 	return out
+}
+
+// hold keeps a fragment of a call's arguments until the call can be sent. All
+// that is held, of every call together, is bounded by heldLimit.
+func (t *streamTranslator) hold(c *toolCall, args string) {
+	if t.held+len(args) > t.heldLimit {
+		t.overflow = true
+		return
+	}
+	t.held += len(args)
+	c.args += args
 }
 
 // open closes the open block when the kind differs and opens a block of kind

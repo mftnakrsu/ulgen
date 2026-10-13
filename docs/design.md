@@ -130,6 +130,10 @@ run.
   a system message in that place (one refuses the request, one ignores the
   message), so its text is put into the user turn next to it, inside the
   `<system-reminder>` tags Claude Code itself uses for such notes.
+- **The provider is not trusted further than it must be.** A redirect is not
+  followed, so the key and the prompt go only to the configured address, and
+  one event of a streamed answer, like a whole answer that is not streamed,
+  may be 64 MB at most.
 - **Token counts are estimates**, UTF-8 bytes divided by 3 and rounded up,
   erring high so Claude Code compacts early rather than late.
 - **A refused key is reported as a plain error that names `ulgen login`**,
