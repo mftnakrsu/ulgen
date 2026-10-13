@@ -43,7 +43,7 @@ func toOpenAI(req anthropicRequest, model string) (openAIRequest, nameMap, error
 		})
 	}
 
-	for _, msg := range req.Messages {
+	for _, msg := range foldSystemMessages(req.Messages) {
 		msgs, err := translateMessage(msg, names)
 		if err != nil {
 			return openAIRequest{}, nil, err
@@ -107,7 +107,9 @@ func stripBillingHeader(s string) string {
 // translateMessage turns one Anthropic message into one or more OpenAI
 // messages. A user turn carrying tool results yields the tool messages first,
 // then the user's text and images. An assistant turn with text and tool uses
-// becomes one message. A message that keeps nothing produces nothing.
+// becomes one message. A message that keeps nothing produces nothing. A
+// system message never arrives here: foldSystemMessages has moved its text
+// into a user turn.
 func translateMessage(msg anthropicMsg, names nameMap) ([]openAIMessage, error) {
 	switch msg.Role {
 	case "assistant":
@@ -121,6 +123,90 @@ func translateMessage(msg anthropicMsg, names nameMap) ([]openAIMessage, error) 
 	default:
 		return nil, nil
 	}
+}
+
+// The tags around the text of a system message that travels in a user turn.
+// They are the ones Claude Code itself puts around a note of the system
+// inside a user turn, and its prompt tells the model what they mean.
+const (
+	systemNoteOpen  = "<system-reminder>\n"
+	systemNoteClose = "\n</system-reminder>"
+)
+
+// foldSystemMessages returns msgs with every system message's text moved into
+// a user turn, as a text block inside the tags above. Claude Code sends system
+// messages between the turns to a model it does not know: the first one,
+// after the first user turn, names the working directory, the platform and
+// the date, and without it the model has to guess where it is. EVREN's models
+// do not all take a system message in that place (one refuses the request,
+// one ignores the message), but every one of them reads the text in a user
+// turn. The text joins the user turn before it; with none before it, the one
+// after it; with neither, it becomes a user turn of its own. Joining a turn,
+// not standing beside it, keeps the tool messages of that turn right after
+// the tool calls they answer. An empty system message leaves nothing. msgs
+// and the content it holds are not changed.
+func foldSystemMessages(msgs []anthropicMsg) []anthropicMsg {
+	found := false
+	for _, msg := range msgs {
+		if msg.Role == "system" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return msgs
+	}
+	out := make([]anthropicMsg, 0, len(msgs))
+	var waiting []contentBlock // notes with no user turn before them
+	for _, msg := range msgs {
+		if msg.Role == "system" {
+			text := systemText(msg.Content)
+			if text == "" {
+				continue
+			}
+			note := contentBlock{Type: "text", Text: systemNoteOpen + text + systemNoteClose}
+			if n := len(out); n > 0 && out[n-1].Role == "user" {
+				out[n-1].Content = blockContent(contentBlocks(out[n-1].Content), []contentBlock{note})
+			} else {
+				waiting = append(waiting, note)
+			}
+			continue
+		}
+		if len(waiting) > 0 {
+			if msg.Role == "user" {
+				msg.Content = blockContent(waiting, contentBlocks(msg.Content))
+			} else {
+				out = append(out, anthropicMsg{Role: "user", Content: blockContent(waiting, nil)})
+			}
+			waiting = nil
+		}
+		out = append(out, msg)
+	}
+	if len(waiting) > 0 {
+		out = append(out, anthropicMsg{Role: "user", Content: blockContent(waiting, nil)})
+	}
+	return out
+}
+
+// contentBlocks returns a message's content as blocks: a string becomes one
+// text block, an empty string none.
+func contentBlocks(content textOrBlocks) []contentBlock {
+	if content.isList {
+		return content.blocks
+	}
+	if content.str == "" {
+		return nil
+	}
+	return []contentBlock{{Type: "text", Text: content.str}}
+}
+
+// blockContent returns list content that holds first and then second, in a
+// slice of its own.
+func blockContent(first, second []contentBlock) textOrBlocks {
+	blocks := make([]contentBlock, 0, len(first)+len(second))
+	blocks = append(blocks, first...)
+	blocks = append(blocks, second...)
+	return textOrBlocks{blocks: blocks, isList: true, present: true}
 }
 
 // translateUser translates a user turn. Tool results come first, then one user
