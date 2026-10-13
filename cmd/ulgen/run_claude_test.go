@@ -67,6 +67,9 @@ func TestRunClaudeSetsTheChildEnvironment(t *testing.T) {
 		"CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1",
 		"CLAUDE_CODE_ATTRIBUTION_HEADER=0",
 		"CLAUDE_CODE_MAX_OUTPUT_TOKENS=16000",
+		// The model's own context window, so Claude Code does not assume
+		// 200k for a model it does not know and warn about it at every start.
+		"CLAUDE_CODE_MAX_CONTEXT_TOKENS=1048576",
 	} {
 		if !strings.Contains(joined, want) {
 			t.Errorf("the child's environment lacks %q:\n%s", want, joined)
@@ -131,12 +134,17 @@ func TestRunClaudeKeepsTheCallersMaxOutput(t *testing.T) {
 	srv, _ := evrenServer(t, chatRoutes())
 	s := useFakeChild(t, 0, nil)
 	saved := environ
-	environ = func() []string { return []string{"PATH=/usr/bin", claudeEnvMaxOutput + "=777", "LANG=C"} }
+	environ = func() []string {
+		return []string{"PATH=/usr/bin", claudeEnvMaxOutput + "=777", claudeEnvMaxContext + "=5000", "LANG=C"}
+	}
 	t.Cleanup(func() { environ = saved })
 	if code, _, stderr := exec(t, context.Background(), vars, "run", "--base-url", srv.URL, "claude"); code != 0 || stderr == "" {
 		t.Fatalf("code %d stderr %q", code, stderr)
 	}
 	joined := strings.Join(s.env, "\n")
+	if !strings.Contains(joined, claudeEnvMaxContext+"=5000") || strings.Contains(joined, claudeEnvMaxContext+"=1048576") {
+		t.Errorf("the caller's context limit was replaced:\n%s", joined)
+	}
 	if !strings.Contains(joined, claudeEnvMaxOutput+"=777") || strings.Contains(joined, claudeEnvMaxOutput+"=65536") {
 		t.Errorf("max output:\n%s", joined)
 	}

@@ -19,6 +19,10 @@ const (
 	claudeEnvDisableBetas = "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS"
 	claudeEnvUnneeded     = "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"
 	claudeEnvMaxOutput    = "CLAUDE_CODE_MAX_OUTPUT_TOKENS"
+	// claudeEnvMaxContext tells Claude Code the context window of a model it
+	// does not know. Without it Claude Code assumes 200k tokens and says so,
+	// at length, at every start.
+	claudeEnvMaxContext = "CLAUDE_CODE_MAX_CONTEXT_TOKENS"
 	// claudeEnvAttribution removes the attribution block from Claude Code's
 	// system prompt (design, "ulgen run claude: one addition"). It is set for
 	// the child of both translated commands.
@@ -77,8 +81,9 @@ func claudeVars(baseURL, token, tokenVar string, s translatorSetup) []string {
 
 // claudeChildEnv returns parent with the variables of step 4 of the design
 // set or removed: the local address and the token, the model variables, the
-// two switches, the attribution switch, and CLAUDE_CODE_MAX_OUTPUT_TOKENS
-// unless the caller already set it. tokenVar names where the token is written
+// two switches, the attribution switch, and CLAUDE_CODE_MAX_OUTPUT_TOKENS and
+// CLAUDE_CODE_MAX_CONTEXT_TOKENS (the chosen model's context window, when
+// EVREN gives one) unless the caller already set them. tokenVar names where the token is written
 // (the worker's one difference from "ulgen run claude" here). The EVREN key
 // and the variables that name another provider are removed, exactly once
 // each; foldCase is for Windows, where the names of variables differ in case
@@ -87,6 +92,9 @@ func claudeChildEnv(parent []string, baseURL, token, tokenVar string, s translat
 	set := claudeVars(baseURL, token, tokenVar, s)
 	if !hasVar(parent, claudeEnvMaxOutput, foldCase) {
 		set = append(set, fmt.Sprintf("%s=%d", claudeEnvMaxOutput, maxOutput(s)))
+	}
+	if s.context > 0 && !hasVar(parent, claudeEnvMaxContext, foldCase) {
+		set = append(set, fmt.Sprintf("%s=%d", claudeEnvMaxContext, s.context))
 	}
 	out := make([]string, 0, len(parent)+len(set))
 	for _, kv := range parent {
