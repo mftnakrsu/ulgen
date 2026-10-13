@@ -1,6 +1,18 @@
-# Ülgen
+<p align="center">
+  <img src="docs/assets/logo.svg" alt="Ülgen" width="120">
+</p>
 
-[English](README.md)
+<h1 align="center">Ülgen</h1>
+
+<p align="center">Zaten kullandığınız kodlama araçları için EVREN</p>
+
+<p align="center">
+  <a href="https://github.com/mftnakrsu/ulgen/actions/workflows/ci.yml"><img src="https://github.com/mftnakrsu/ulgen/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/mftnakrsu/ulgen/releases/latest"><img src="https://img.shields.io/github/v/release/mftnakrsu/ulgen" alt="Release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0"></a>
+</p>
+
+<p align="center"><a href="README.md">English</a></p>
 
 Ülgen, Savunma Sanayii Başkanlığı'nın (SSB) işlettiği model API'si [EVREN](docs/evren.md)'i, zaten kullandığınız açık kaynak kodlama araçlarına bağlar: Qwen Code, opencode, Codex CLI ve Claude Code.
 

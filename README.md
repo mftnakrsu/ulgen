@@ -1,6 +1,18 @@
-# Ülgen
+<p align="center">
+  <img src="docs/assets/logo.svg" alt="Ülgen" width="120">
+</p>
 
-[Türkçe](README.tr.md)
+<h1 align="center">Ülgen</h1>
+
+<p align="center">EVREN for the coding tools you already use</p>
+
+<p align="center">
+  <a href="https://github.com/mftnakrsu/ulgen/actions/workflows/ci.yml"><img src="https://github.com/mftnakrsu/ulgen/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/mftnakrsu/ulgen/releases/latest"><img src="https://img.shields.io/github/v/release/mftnakrsu/ulgen" alt="Release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0"></a>
+</p>
+
+<p align="center"><a href="README.tr.md">Türkçe</a></p>
 
 Ülgen connects [EVREN](docs/evren.md), the model API run by Türkiye's Presidency of Defence Industries (SSB), to the open-source coding tools people already use: Qwen Code, opencode, Codex CLI and Claude Code.
 
