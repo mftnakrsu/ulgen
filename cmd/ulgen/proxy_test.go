@@ -65,27 +65,32 @@ func chatRoutes() map[string]answer {
 }
 
 // The lines "ulgen proxy --print-env" prints are the ones a shell needs, in
-// the shell's own form: POSIX assignment on Unix, PowerShell on Windows.
+// the shell's own form: an exported POSIX assignment on Unix, PowerShell on
+// Windows. They hold what "ulgen run claude" gives its child, the chosen
+// model's context window included.
 func TestProxyPrintEnv(t *testing.T) {
 	for name, tc := range map[string]struct {
 		style string
 		want  []string
 	}{
 		"posix": {"posix", []string{
-			"ANTHROPIC_BASE_URL='http://127.0.0.1:41234'\n",
-			"ANTHROPIC_MODEL='deepseek-v4.1-flash'\n",
-			"ANTHROPIC_DEFAULT_OPUS_MODEL='deepseek-v4.1-flash'\n",
-			"ANTHROPIC_DEFAULT_SONNET_MODEL='deepseek-v4.1-flash'\n",
-			"CLAUDE_CODE_SUBAGENT_MODEL='deepseek-v4.1-flash'\n",
-			"ANTHROPIC_DEFAULT_HAIKU_MODEL='deepseek-v4.1-flash'\n",
-			"CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS='1'\n",
-			"CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC='1'\n",
-			"CLAUDE_CODE_MAX_OUTPUT_TOKENS='16000'\n",
+			"export ANTHROPIC_BASE_URL='http://127.0.0.1:41234'\n",
+			"export ANTHROPIC_MODEL='deepseek-v4.1-flash'\n",
+			"export ANTHROPIC_DEFAULT_OPUS_MODEL='deepseek-v4.1-flash'\n",
+			"export ANTHROPIC_DEFAULT_SONNET_MODEL='deepseek-v4.1-flash'\n",
+			"export CLAUDE_CODE_SUBAGENT_MODEL='deepseek-v4.1-flash'\n",
+			"export ANTHROPIC_DEFAULT_HAIKU_MODEL='deepseek-v4.1-flash'\n",
+			"export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS='1'\n",
+			"export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC='1'\n",
+			"export CLAUDE_CODE_ATTRIBUTION_HEADER='0'\n",
+			"export CLAUDE_CODE_MAX_OUTPUT_TOKENS='16000'\n",
+			"export CLAUDE_CODE_MAX_CONTEXT_TOKENS='1048576'\n",
 		}},
 		"powershell": {"powershell", []string{
 			"$env:ANTHROPIC_BASE_URL = 'http://127.0.0.1:41234'\n",
 			"$env:ANTHROPIC_MODEL = 'deepseek-v4.1-flash'\n",
 			"$env:CLAUDE_CODE_MAX_OUTPUT_TOKENS = '16000'\n",
+			"$env:CLAUDE_CODE_MAX_CONTEXT_TOKENS = '1048576'\n",
 		}},
 	} {
 		useSetupEnv(t, nil)

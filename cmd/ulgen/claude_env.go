@@ -79,22 +79,34 @@ func claudeVars(baseURL, token, tokenVar string, s translatorSetup) []string {
 	}
 }
 
+// claudeLimits returns the limits Claude Code is told, in the order they are
+// written: CLAUDE_CODE_MAX_OUTPUT_TOKENS, and CLAUDE_CODE_MAX_CONTEXT_TOKENS
+// (the chosen model's context window) when EVREN gives one. "ulgen run
+// claude", the worker and "ulgen proxy --print-env" all take them from here,
+// so the three cannot tell Claude Code different things.
+func claudeLimits(s translatorSetup) []string {
+	limits := []string{fmt.Sprintf("%s=%d", claudeEnvMaxOutput, maxOutput(s))}
+	if s.context > 0 {
+		limits = append(limits, fmt.Sprintf("%s=%d", claudeEnvMaxContext, s.context))
+	}
+	return limits
+}
+
 // claudeChildEnv returns parent with the variables of step 4 of the design
 // set or removed: the local address and the token, the model variables, the
-// two switches, the attribution switch, and CLAUDE_CODE_MAX_OUTPUT_TOKENS and
-// CLAUDE_CODE_MAX_CONTEXT_TOKENS (the chosen model's context window, when
-// EVREN gives one) unless the caller already set them. tokenVar names where the token is written
+// two switches, the attribution switch, and the limits of claudeLimits
+// unless the caller already set them. tokenVar names where the token is written
 // (the worker's one difference from "ulgen run claude" here). The EVREN key
 // and the variables that name another provider are removed, exactly once
 // each; foldCase is for Windows, where the names of variables differ in case
 // only on paper. Every other entry of the caller's environment stays.
 func claudeChildEnv(parent []string, baseURL, token, tokenVar string, s translatorSetup, foldCase bool) []string {
 	set := claudeVars(baseURL, token, tokenVar, s)
-	if !hasVar(parent, claudeEnvMaxOutput, foldCase) {
-		set = append(set, fmt.Sprintf("%s=%d", claudeEnvMaxOutput, maxOutput(s)))
-	}
-	if s.context > 0 && !hasVar(parent, claudeEnvMaxContext, foldCase) {
-		set = append(set, fmt.Sprintf("%s=%d", claudeEnvMaxContext, s.context))
+	for _, kv := range claudeLimits(s) {
+		name, _, _ := strings.Cut(kv, "=")
+		if !hasVar(parent, name, foldCase) {
+			set = append(set, kv)
+		}
 	}
 	out := make([]string, 0, len(parent)+len(set))
 	for _, kv := range parent {

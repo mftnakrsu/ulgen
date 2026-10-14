@@ -292,12 +292,12 @@ var envStyle = func() string {
 }
 
 // claudeEnvLines writes the lines that put a shell into the state "ulgen run
-// claude" gives its child: the local address, the token, and the model
-// variables. It is what the user pastes into the shell that starts Claude
-// Code; the token is meant to be there, so it is printed in full.
+// claude" gives its child: the local address, the token, the model
+// variables, the switches and the limits. It is what the user pastes into the
+// shell that starts Claude Code; the token is meant to be there, so it is
+// printed in full.
 func claudeEnvLines(baseURL, token string, s translatorSetup, style string) string {
-	vars := claudeVars(baseURL, token, claudeEnvToken, s)
-	vars = append(vars, fmt.Sprintf("%s=%d", claudeEnvMaxOutput, maxOutput(s)))
+	vars := append(claudeVars(baseURL, token, claudeEnvToken, s), claudeLimits(s)...)
 	var b strings.Builder
 	for _, kv := range vars {
 		name, value, _ := strings.Cut(kv, "=")
@@ -307,10 +307,12 @@ func claudeEnvLines(baseURL, token string, s translatorSetup, style string) stri
 }
 
 // shellLine writes one variable assignment in the shell's form, quoting the
-// value so a token with a special character in it is safe to paste.
+// value so a token with a special character in it is safe to paste. The
+// variable must reach the programs the shell starts: PowerShell's $env: does
+// that by itself, a POSIX shell only for a variable it exports.
 func shellLine(style, name, value string) string {
 	if style == "powershell" {
 		return "$env:" + name + " = '" + strings.ReplaceAll(value, "'", "''") + "'\n"
 	}
-	return name + "='" + strings.ReplaceAll(value, "'", `'\''`) + "'\n"
+	return "export " + name + "='" + strings.ReplaceAll(value, "'", `'\''`) + "'\n"
 }
