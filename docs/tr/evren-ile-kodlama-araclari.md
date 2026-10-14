@@ -318,13 +318,19 @@ desteklemediğini açıkça söylemek gerekir; bu kullanım sizin sorumluluğunu
 ```sh
 $ ulgen run claude -p "Tek kelimeyle selam ver."
 ulgen: Claude Code, Ülgen'in çeviricisi üzerinden bir EVREN modeliyle çalışıyor; Anthropic bu kullanımı desteklemiyor.
+[claude-code:unrecognized_model] {"model":"deepseek-v4.1-flash","query_source":"sdk"}
 merhaba
 ```
 
-Bilmeniz gereken iki şey daha var. Claude Code, tanımadığı bir modelle
-çalıştığını kendi uyarısıyla söyler ve bağlam penceresini 200 bin token
-varsayar; bu Claude Code'un kendi davranışıdır. EVREN anahtarınızı kabul
-etmezse (süresi dolmuş ya da silinmiş bir anahtar) Claude Code'un içinde
+Bilmeniz gereken üç şey daha var. Claude Code EVREN'in model adlarını tanımaz.
+Ülgen ona seçilen modelin bağlam penceresini `CLAUDE_CODE_MAX_CONTEXT_TOKENS`
+ile bildirir; böylece Claude Code 200 bin token varsaymaz ve açılışta bunun
+için uyarı göstermez (değişkeni kendiniz tanımladıysanız sizin değeriniz
+kalır). Tek seferlik bir çalıştırmada (`-p`) ise Claude Code, tanımadığı her
+model için standart hataya bir kez yukarıdaki `[claude-code:unrecognized_model]`
+satırını yazar. Bu bir hata değil, Claude Code'un kendi bilgi satırıdır; istek
+olduğu gibi gider. EVREN anahtarınızı kabul etmezse (süresi dolmuş ya da
+silinmiş bir anahtar) Claude Code'un içinde
 `EVREN did not accept the key; leave Claude Code and run: ulgen login` iletisini
 görürsünüz: Claude Code'dan çıkın ve `ulgen login` çalıştırın.
 

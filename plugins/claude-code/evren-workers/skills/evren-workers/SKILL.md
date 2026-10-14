@@ -125,6 +125,10 @@ yourself, with a timeout. Read the diff, all of it for code that handles
 secrets or users' files. Then commit yourself. What the worker reports as
 "could not do" is the first thing to read.
 
+A line on the worker's standard error that begins with
+`[claude-code:unrecognized_model]` is Claude Code saying that it does not know
+EVREN's model names. It is expected and says nothing about the result.
+
 A worker that ran out of time may still have finished the code and missed
 only its report: run your checks before you decide. When the checks fail,
 throw the clone away rather than build on it, and start a fresh one from a

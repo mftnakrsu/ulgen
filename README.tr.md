@@ -121,6 +121,7 @@ Bu ve diğer kararların gerekçeleri: [docs/design.md](docs/design.md) (İngili
 ## Bilinen sınırlar
 
 - Anthropic, Claude Code'un başka modellerle kullanılmasını desteklemez. `ulgen run claude` bir çevirici üzerinden çalışır ve bunu her çalıştırmada bir kez söyler.
+- Tek seferlik bir çalıştırmada (`ulgen claude -p`) Claude Code, EVREN'in model adlarını tanımadığı için standart hataya bir satır yazar: `[claude-code:unrecognized_model] {…}`. Bu bir hata değil, bir bilgi satırıdır; istek olduğu gibi gider.
 - Claude Code'un EVREN'de gösterdiği token sayıları tahminidir.
 - Windows'ta, başlatıcısı npm'in yazdığı standart dosya olmayan bir araç `cmd.exe` üzerinden başlatılır; o durumda argüman `"`, `%`, `^` ya da `!` içeremez.
 

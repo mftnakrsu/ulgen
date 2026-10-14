@@ -121,6 +121,7 @@ The reasoning behind these and the other decisions is in [docs/design.md](docs/d
 ## Known limits
 
 - Anthropic does not support using Claude Code with other models. `ulgen run claude` works through a translator and says so once per run.
+- In a one-shot run (`ulgen claude -p`), Claude Code writes one line to standard error, `[claude-code:unrecognized_model] {…}`, because it does not know EVREN's model names. It is a note, not an error: the request goes out unchanged.
 - Token counts shown by Claude Code on EVREN are estimates.
 - On Windows, a tool whose launcher is not the standard one npm writes is started through `cmd.exe`, and then an argument may not contain `"`, `%`, `^` or `!`.
 

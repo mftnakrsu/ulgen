@@ -137,6 +137,17 @@ run.
 - **The notice.** Anthropic does not support running Claude Code on other
   models. `ulgen run claude` says so once per run; `ULGEN_QUIET_NOTICE=1`
   leaves the line out.
+- **Claude Code is told the model's context window.** For a model it does not
+  know, Claude Code assumes 200k tokens and warns about it at every start.
+  `CLAUDE_CODE_MAX_CONTEXT_TOKENS`, set to the window EVREN reports, does away
+  with both; a value the caller set stays.
+- **Claude Code's unrecognized-model line is left as it is.** In a `-p` run
+  Claude Code writes `[claude-code:unrecognized_model] {…}` to standard error
+  once for each model it does not know. Both ways to stop it cost more than
+  the line. A `modelOverrides` entry makes Claude Code take the EVREN model for
+  a Claude model, with that model's name, window and features. Filtering the
+  line means taking Claude Code's standard error off the terminal, and Claude
+  Code then leaves out the warnings it writes only to a terminal.
 - **Only documented variables of Claude Code are used.**
 
 `ulgen proxy` runs the same translator on its own for another program that
