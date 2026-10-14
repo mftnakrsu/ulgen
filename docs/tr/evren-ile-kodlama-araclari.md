@@ -334,6 +334,12 @@ silinmiş bir anahtar) Claude Code'un içinde
 `EVREN did not accept the key; leave Claude Code and run: ulgen login` iletisini
 görürsünüz: Claude Code'dan çıkın ve `ulgen login` çalıştırın.
 
+Claude Code kapanırken oturumu sürdürmek için `claude --resume <kimlik>`
+komutunu önerir. Bu komutu olduğu gibi çalıştırırsanız Claude Code çeviriciye
+değil, kendi ayarlarındaki hizmete (örneğin Anthropic hesabınıza) bağlanır.
+Oturumu EVREN üzerinde sürdürmek için başına `ulgen` ekleyin:
+`ulgen claude --resume <kimlik>`.
+
 `ulgen proxy`, Ülgen'in başlatmadığı, ama Anthropic API'sini konuşan bir
 program için aynı çeviriciyi tek başına çalıştırır. Seçenekleri:
 
