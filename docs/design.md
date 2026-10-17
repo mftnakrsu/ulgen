@@ -153,9 +153,10 @@ run.
   models. `ulgen run claude` says so once per run; `ULGEN_QUIET_NOTICE=1`
   leaves the line out.
 - **Claude Code is told the model's context window.** For a model it does not
-  know, Claude Code assumes 200k tokens and warns about it at every start.
+  know, Claude Code assumes 200k tokens, compacts the conversation at that
+  size (since 2.1.223) and warns about it at every start.
   `CLAUDE_CODE_MAX_CONTEXT_TOKENS`, set to the window EVREN reports, does away
-  with both; a value the caller set stays.
+  with all three; a value the caller set stays.
 - **Claude Code's unrecognized-model line is left as it is.** In a `-p` run
   Claude Code writes `[claude-code:unrecognized_model] {…}` to standard error
   once for each model it does not know. Both ways to stop it cost more than

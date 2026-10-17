@@ -20,8 +20,8 @@ const (
 	claudeEnvUnneeded     = "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"
 	claudeEnvMaxOutput    = "CLAUDE_CODE_MAX_OUTPUT_TOKENS"
 	// claudeEnvMaxContext tells Claude Code the context window of a model it
-	// does not know. Without it Claude Code assumes 200k tokens and says so,
-	// at length, at every start.
+	// does not know. Without it Claude Code assumes 200k tokens, compacts the
+	// conversation at that size and says so at every start.
 	claudeEnvMaxContext = "CLAUDE_CODE_MAX_CONTEXT_TOKENS"
 	// claudeEnvAttribution removes the attribution block from Claude Code's
 	// system prompt (design, "ulgen run claude: one addition"). It is set for
