@@ -946,14 +946,33 @@ func TestQwenHomeInTheEnvFile(t *testing.T) {
 		}
 		unchanged(t, envFile, tc.content)
 	}
-	// The variable in the environment wins over the file: nothing to say.
+	// The variable in the environment wins over the files: nothing to say.
 	other := t.TempDir()
 	env := testEnv(t, map[string]string{"QWEN_HOME": other}, nil)
 	write(t, filepath.Join(env.Home, ".qwen", ".env"), "QWEN_HOME=/srv/qwen\n")
+	write(t, filepath.Join(env.Home, ".env"), "QWEN_HOME=/srv/qwen\n")
 	write(t, filepath.Join(other, ".env"), "QWEN_HOME=/srv/qwen\n")
 	if p := setUp(t, Qwen{}, env, testRequest()); hasNote(p, "setup.note.qwen_home_file") {
 		t.Errorf("with QWEN_HOME set: notes %v", p.Notes)
 	}
+}
+
+// Without QWEN_HOME in the environment, Qwen Code reads ~/.qwen/.env and then
+// ~/.env for it, and the first value it finds wins. The note names the file
+// whose value Qwen Code takes.
+func TestQwenHomeInTheHomeEnvFile(t *testing.T) {
+	env := testEnv(t, nil, nil)
+	homeEnv := write(t, filepath.Join(env.Home, ".env"), "OTHER_KEY=sk-SENTINEL\nQWEN_HOME=/srv/qwen\n")
+	p := setUp(t, Qwen{}, env, testRequest())
+	if args := noteArgs(t, p, "setup.note.qwen_home_file"); len(args) != 1 || args[0] != Path(homeEnv) {
+		t.Errorf("~/.env alone: note arguments %v", args)
+	}
+	qwenEnv := write(t, filepath.Join(env.Home, ".qwen", ".env"), "QWEN_HOME=/srv/other\n")
+	p = setUp(t, Qwen{}, env, testRequest())
+	if args := noteArgs(t, p, "setup.note.qwen_home_file"); len(args) != 1 || args[0] != Path(qwenEnv) {
+		t.Errorf("both files: note arguments %v", args)
+	}
+	unchanged(t, homeEnv, "OTHER_KEY=sk-SENTINEL\nQWEN_HOME=/srv/qwen\n")
 }
 
 // A directory where a file belongs is reported as that, and nothing is

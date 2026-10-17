@@ -601,25 +601,28 @@ func qwenSetPrivacy(plan *Plan, settings *jsoncFile) error {
 	return settings.set(false, "privacy", "usageStatisticsEnabled")
 }
 
-// qwenEnvFileNote adds a note when <home>/.qwen/.env sets QWEN_HOME. Qwen
-// Code reads that file before it looks for its directory, so it would then
-// use another directory than the one Ülgen wrote to. The variable in the
-// environment wins over the file, so with QWEN_HOME set there is nothing to
-// say. Only the name of the variable is looked for, and nothing of the file
-// goes into the note: such a file can hold keys.
+// qwenEnvFileNote adds a note when a .env file sets QWEN_HOME. Without the
+// variable in its environment, Qwen Code reads <home>/.qwen/.env and then
+// <home>/.env for it before it looks for its directory, and takes the first
+// value it finds; it would then use another directory than the one Ülgen
+// wrote to. The note names that first file. The variable in the environment
+// wins over both files, so with QWEN_HOME set there is nothing to say. Only
+// the name of the variable is looked for, and nothing of a file goes into the
+// note: such a file can hold keys.
 func qwenEnvFileNote(plan *Plan, env Env, dir string) {
 	if env.getenv("QWEN_HOME") != "" {
 		return
 	}
-	path := filepath.Join(dir, ".env")
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return // no such file, or one that cannot be read: nothing is known
-	}
-	for _, line := range strings.Split(string(content), "\n") {
-		if dotenvSets(line, "QWEN_HOME") {
-			plan.note("setup.note.qwen_home_file", Path(path))
-			return
+	for _, path := range []string{filepath.Join(dir, ".env"), filepath.Join(filepath.Dir(dir), ".env")} {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			continue // no such file, or one that cannot be read: nothing is known
+		}
+		for _, line := range strings.Split(string(content), "\n") {
+			if dotenvSets(line, "QWEN_HOME") {
+				plan.note("setup.note.qwen_home_file", Path(path))
+				return
+			}
 		}
 	}
 }
