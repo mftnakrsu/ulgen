@@ -149,6 +149,18 @@ func contextWindow(models []setup.Model, def string) int {
 	return 0
 }
 
+// modelEfforts returns, for the translator, the models that take a
+// reasoning_effort with the values EVREN lists for each.
+func modelEfforts(models []setup.Model) map[string][]string {
+	efforts := map[string][]string{}
+	for _, m := range models {
+		if m.Effort {
+			efforts[m.ID] = m.EffortValues
+		}
+	}
+	return efforts
+}
+
 // modelIDs returns the EVREN model ids, for the translator's model list.
 func modelIDs(models []setup.Model) []string {
 	ids := make([]string, len(models))
@@ -170,6 +182,7 @@ func startTranslator(s translatorSetup, key, token string, port int) (*proxy.Ser
 		Models:  modelIDs(s.models),
 		Default: s.def,
 		Small:   s.small,
+		Efforts: modelEfforts(s.models),
 	})
 	if err != nil {
 		return nil, nil, err

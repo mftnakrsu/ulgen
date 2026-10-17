@@ -334,6 +334,13 @@ silinmiş bir anahtar) Claude Code'un içinde
 `EVREN did not accept the key; leave Claude Code and run: ulgen login` iletisini
 görürsünüz: Claude Code'dan çıkın ve `ulgen login` çalıştırın.
 
+Claude Code'da `/effort` ya da `--effort` ile seçtiğiniz düzey, bunu
+destekleyen EVREN modellerine iletilir: `low`, `medium`, `high` ve `xhigh`
+olduğu gibi, `max` ise `xhigh` olarak (bazı EVREN modelleri `max` kabul
+etmez). Claude Code'da düşünmeyi kapattığınızda model düşünmeden yanıt verir.
+Düşünme düzeyi seçilemeyen modellerde (örneğin `gemma-4-31b`, `qwen3-vl-30b`)
+bu seçim modelin davranışını değiştirmez.
+
 Claude Code kapanırken oturumu sürdürmek için `claude --resume <kimlik>`
 komutunu önerir. Bu komutu olduğu gibi çalıştırırsanız Claude Code çeviriciye
 değil, kendi ayarlarındaki hizmete (örneğin Anthropic hesabınıza) bağlanır.

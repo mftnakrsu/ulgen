@@ -195,3 +195,31 @@ func TestNewUsesPreset(t *testing.T) {
 		t.Error("empty user agent should keep the provider default")
 	}
 }
+
+// Recorded from EVREN on 2026-10-17: a model that lists its efforts, one
+// that takes an effort without a list, and one that takes none.
+const modelsWithEffort = `{"object":"list","data":[` +
+	`{"id":"mimo-v2.6-pro","object":"model","task":"chat","context_length":1048576,"default_max_output_tokens":16384,"capabilities":{"tools":true,"thinking":true,"reasoning_effort":true,"reasoning_effort_values":["none","minimal","low","medium","high","xhigh"],"reasoning_effort_aliases":null,"vision":true,"response_format":true,"seed":true,"top_k":true,"stop":true},"pricing":{"prompt_token_price":0.0,"completion_token_price":0.0,"currency":"CR","free_until":"2026-11-01"},"precision":null},` +
+	`{"id":"glm-5.3","object":"model","task":"chat","context_length":524288,"default_max_output_tokens":16384,"capabilities":{"tools":true,"thinking":true,"reasoning_effort":true,"reasoning_effort_values":null,"reasoning_effort_aliases":{"medium":"high","minimal":"low"},"vision":false,"response_format":true,"seed":true,"top_k":true,"stop":true},"pricing":{"free_until":"2026-11-01"},"precision":"FP8"},` +
+	`{"id":"gemma-4-31b","object":"model","task":"chat","context_length":262144,"default_max_output_tokens":16384,"capabilities":{"tools":true,"thinking":true,"reasoning_effort":false,"reasoning_effort_values":null,"reasoning_effort_aliases":null,"vision":true},"pricing":{"free_until":"2026-11-01"}}]}`
+
+func TestModelsReasoningEffort(t *testing.T) {
+	srv, _ := newServer(t, map[string]answer{"/models": {body: modelsWithEffort}})
+	models, err := New("k", srv.URL, "").Models(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(models) != 3 {
+		t.Fatalf("models = %+v", models)
+	}
+	mimo, glm, gemma := models[0], models[1], models[2]
+	if !mimo.Effort || strings.Join(mimo.EffortValues, ",") != "none,minimal,low,medium,high,xhigh" {
+		t.Errorf("mimo = %+v", mimo)
+	}
+	if !glm.Effort || glm.EffortValues != nil {
+		t.Errorf("glm = %+v", glm)
+	}
+	if gemma.Effort || gemma.EffortValues != nil || !gemma.Thinking {
+		t.Errorf("gemma = %+v", gemma)
+	}
+}

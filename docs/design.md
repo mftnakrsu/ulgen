@@ -120,8 +120,16 @@ run.
   Anthropic's own credential variables are removed from its environment.
 - **Loopback only.** The translator listens on `127.0.0.1` on a port the
   system picks.
-- **Unknown fields are dropped, not passed on.** Thinking is not requested;
-  reasoning a model sends anyway is shown as a thinking block.
+- **Unknown fields are dropped, not passed on.** Reasoning a model sends is
+  shown as a thinking block.
+- **Claude Code's effort reaches the model.** For a model that EVREN lists as
+  taking a `reasoning_effort`, the effort Claude Code sends (`/effort`,
+  `--effort`) is passed on: low, medium, high and xhigh as they are, max as
+  xhigh, because some EVREN models refuse max and all of them take xhigh.
+  With thinking off, which Claude Code shows by leaving `thinking` out, the
+  model is asked for `none`. A value outside the model's own list is not
+  sent, and a model that takes no effort gets none: EVREN refuses the field
+  for it.
 - **A system message between the turns travels in a user turn.** To a model
   it does not know, Claude Code sends the working directory, the platform and
   the date in a message of role `system` after the first user turn, and a
