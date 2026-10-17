@@ -37,9 +37,14 @@ the document have to change with it.
 
 A snapshot is not signed.
 
-## Not done yet
+The first release, v0.1.0, was signed this way; `install.sh` with cosign on
+the `PATH` and the `cosign verify-blob` command in [install.md](install.md)
+both accept its signature.
 
-- The workflow's actions are pinned by tag (`actions/checkout@v5` and the
-  like), not by commit SHA.
-- No release has been cut yet, so signing and the scripts' signature check
-  have run only against a stand-in for cosign in the tests.
+## The workflows' actions
+
+Every action in `.github/workflows` is pinned by commit, with its version in
+a comment (`actions/checkout@<sha> # v7.0.1`). A tag can be moved to other
+code; a commit cannot. Dependabot (`.github/dependabot.yml`) proposes the new
+commits once a week, as one pull request; check what changed before merging
+it, since that code runs with the release's permission to sign and publish.
