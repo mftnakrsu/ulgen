@@ -187,6 +187,7 @@
   "run.shim_path": "%[1]s aracının yolunda (%[2]s) %[3]s karakteri var; Windows bu aracı cmd.exe üzerinden güvenle başlatamaz. Aracı, yolunda bu karakter olmayan bir dizine kurun",
   "run.shim_line_too_long": "argümanlar, Windows'un izin verdiği %[1]d karakterden uzun bir komut satırı oluşturuyor; %[2]s cmd.exe üzerinden başlatılamaz. Daha az ya da daha kısa argüman verin",
   "run.project_file": "%[1]s dosyasında EVREN anahtarının ya da EVREN sağlayıcısının adı geçiyor. Projedeki bir dosya anahtarınızı başka bir adrese gönderebilir; bu yüzden %[2]s başlatılmadı. Yine de başlatmak için:  ulgen run --trust-project %[3]s",
+  "run.project_file_reference": "%[1]s, ayarlarının bir bölümünü başka bir dosyadan alıyor ({file:…}) ve ulgen o dosyayı denetlemiyor; o bölüm EVREN sağlayıcısını tanımlayabilir ya da anahtarınızı başka bir adrese taşıyabilir, bu yüzden %[2]s başlatılmadı. Yine de başlatmak için:  ulgen run --trust-project %[3]s",
   "run.project_unreadable": "%[1]s, %[2]s için bir proje dosyası ama okunamadı; anahtarınızı başka bir adrese gönderip göndermediği bilinmiyor, bu yüzden %[2]s başlatılmadı. Yine de başlatmak için:  ulgen run --trust-project %[3]s",
   "run.project_unchecked": "projedeki dosyalar denetlenemedi (%[1]s); bu yüzden araç başlatılmadı. Yine de başlatmak için:  ulgen run --trust-project %[2]s",
   "run.claude_notice": "Claude Code, Ülgen'in çeviricisi üzerinden bir EVREN modeliyle çalışıyor; Anthropic bu kullanımı desteklemiyor.",

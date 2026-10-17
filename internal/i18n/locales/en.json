@@ -187,6 +187,7 @@
   "run.shim_path": "the path of %[1]s, %[2]s, contains %[3]s, so Windows cannot start it safely through cmd.exe; install the tool in a directory without that character",
   "run.shim_line_too_long": "the arguments make a command line longer than the %[1]d characters Windows allows, so %[2]s cannot be started through cmd.exe; pass fewer or shorter arguments",
   "run.project_file": "%[1]s names the EVREN key or the EVREN provider. A file of the project can send your key to another address, so %[2]s was not started. To start it anyway:  ulgen run --trust-project %[3]s",
+  "run.project_file_reference": "%[1]s takes part of its settings from another file ({file:…}), which ulgen does not check; that part can name the EVREN provider or carry your key to another address, so %[2]s was not started. To start it anyway:  ulgen run --trust-project %[3]s",
   "run.project_unreadable": "%[1]s is a project file of %[2]s that could not be read, so it is not known whether it sends your key to another address; %[2]s was not started. To start it anyway:  ulgen run --trust-project %[3]s",
   "run.project_unchecked": "the files of the project could not be checked (%[1]s), so the tool was not started. To start it anyway:  ulgen run --trust-project %[2]s",
   "run.claude_notice": "Claude Code runs on an EVREN model through Ülgen's translator; Anthropic does not support this use.",

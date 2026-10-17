@@ -102,7 +102,10 @@ Qwen Code and opencode read settings from the project directory, and a
 project's file wins over the user's. A cloned repository can therefore carry a
 file that sends the key to any address. `ulgen run` walks up from the working
 directory and refuses to start the tool when such a file names the key or the
-EVREN provider, or cannot be read. `--trust-project` starts it anyway.
+EVREN provider, or cannot be read. An opencode file that takes part of its
+text from another file (`{file:…}`) is refused too: the text it takes in is
+not checked, and it can be the provider's name or a file that holds the key.
+`--trust-project` starts it anyway.
 
 Codex needs no check (its project files cannot define providers), and neither
 does Claude Code (it never holds the key, see below).
