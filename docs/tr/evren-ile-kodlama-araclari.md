@@ -493,7 +493,9 @@ yazar. Birden çok bağımsız görevi aynı anda
 Qwen Code'un kullanım istatistikleri ayarlama sırasında kapatılır: ayar
 dosyasında `privacy.usageStatisticsEnabled` yoksa `false` yazılır. Bu
 istatistikler üçüncü bir tarafa gönderilir. Değer zaten varsa — ne olursa
-olsun — sizinki sayılır ve değiştirilmez.
+olsun — sizinki sayılır ve değiştirilmez. Qwen Code'da
+`QWEN_USAGE_STATISTICS_ENABLED` ortam değişkeni bu ayarın önüne geçer:
+tanımlıysa Qwen Code onun değerine uyar.
 
 ### Proje denetimi (`ulgen run`)
 

@@ -37,8 +37,10 @@ the document have to change with it.
 
 A snapshot is not signed.
 
-The release job installs cosign 2 (`sigstore/cosign-installer` 3), the cosign
-v0.1.0 was signed with, and Dependabot leaves that major version alone.
+The release job installs cosign 2 (`sigstore/cosign-installer` 3), as for
+v0.1.0, and Dependabot leaves that major version alone. cosign 2 writes the
+older bundle format (`--new-bundle-format` is off by default), which every
+cosign 2 and 3 reads.
 cosign 3 (`cosign-installer` 4) writes the newer Sigstore bundle format and,
 by default, a newer transparency log. cosign 2.6.5 reads such a bundle made
 with a key, but the keyless form has not been checked, nor have the older
@@ -46,9 +48,9 @@ cosign 2 releases that Linux distributions package. Moving is its own change:
 sign a test with cosign 3, then check it with the oldest cosign the install
 scripts should accept.
 
-The first release, v0.1.0, was signed this way; `install.sh` with cosign on
-the `PATH` and the `cosign verify-blob` command in [install.md](install.md)
-both accept its signature.
+v0.1.0 and v0.2.0 were signed this way. `install.sh` with cosign on the
+`PATH` and the `cosign verify-blob` command in [install.md](install.md) both
+accept their signatures, with cosign 2.6.5 and 3.1.3.
 
 ## The workflows' actions
 
