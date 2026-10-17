@@ -7,6 +7,8 @@
 /bin/
 /dist/
 /target/
+/site/
+__pycache__/
 node_modules/
 /ulgen
 /ulgen.exe

@@ -12,7 +12,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0"></a>
 </p>
 
-<p align="center"><a href="README.tr.md">Türkçe</a></p>
+<p align="center"><a href="https://mftnakrsu.github.io/ulgen/">Documentation</a> · <a href="README.tr.md">Türkçe</a></p>
 
 Ülgen connects [EVREN](docs/evren.md), the model API run by Türkiye's Presidency of Defence Industries (SSB), to the open-source coding tools people already use: Qwen Code, opencode, Codex CLI and Claude Code.
 
@@ -40,6 +40,7 @@ irm https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.ps1 |
 
 Pardus, Debian and Ubuntu packages, building from source and checking a download are in [docs/install.md](docs/install.md).
 
+<!-- site:using-start -->
 ## First run
 
 You need an EVREN account (sign-in is through e-Devlet) and one of the supported tools installed.
@@ -71,7 +72,7 @@ ulgen status                            # how much of today's quota is left
 ulgen setup --remove all                # take Ülgen's settings out of every tool again
 ```
 
-The recording above is real: `ulgen doctor`, `ulgen status`, then Claude Code reading a file and answering through EVREN. It is made from [docs/assets/demo.tape](docs/assets/demo.tape) with [vhs](https://github.com/charmbracelet/vhs), played back faster than it ran.
+The recording is real: `ulgen doctor`, `ulgen status`, then Claude Code reading a file and answering through EVREN. It is made from [docs/assets/demo.tape](docs/assets/demo.tape) with [vhs](https://github.com/charmbracelet/vhs), played back faster than it ran.
 
 ## Supported tools
 
@@ -125,6 +126,7 @@ The reasoning behind these and the other decisions is in [docs/design.md](docs/d
 - Token counts shown by Claude Code on EVREN are estimates.
 - When it ends, Claude Code suggests `claude --resume <id>`. Run as it is, that command does not go through Ülgen; `ulgen claude --resume <id>` resumes the session on EVREN.
 - On Windows, a tool whose launcher is not the standard one npm writes is started through `cmd.exe`, and then an argument may not contain `"`, `%`, `^` or `!`.
+<!-- site:using-end -->
 
 ## Building
 
