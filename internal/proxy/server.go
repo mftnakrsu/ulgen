@@ -45,6 +45,10 @@ type Config struct {
 	Default    string       // used when a request names another model
 	Small      string       // used when a request names a model whose name contains "haiku"
 	HTTPClient *http.Client // nil: a client without an overall timeout
+	// Efforts names the models that take a reasoning_effort, each with the
+	// values EVREN lists for it (nil: it lists none). A model that is not
+	// here is never sent one: EVREN refuses the field for it.
+	Efforts map[string][]string
 }
 
 // Server is the local translator: it speaks the Anthropic Messages API to the
@@ -156,6 +160,9 @@ func (s *Server) handleMessages(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "invalid_request_error", err.Error())
 		return
+	}
+	if values, ok := s.cfg.Efforts[model]; ok {
+		out.ReasoningEffort = reasoningEffort(req, values)
 	}
 	body, err := json.Marshal(out)
 	if err != nil {

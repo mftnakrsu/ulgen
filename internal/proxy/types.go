@@ -25,6 +25,10 @@ type anthropicRequest struct {
 	Stream        bool             `json:"stream"`
 	Tools         []anthropicTool  `json:"tools"`
 	ToolChoice    *toolChoiceValue `json:"tool_choice"`
+	// Thinking and OutputConfig decide the reasoning_effort (see
+	// reasoningEffort); neither is passed on as it is.
+	Thinking     *thinkingConfig `json:"thinking"`
+	OutputConfig *outputConfig   `json:"output_config"`
 }
 
 // anthropicMsg is one message of an Anthropic request. Content may be a string
@@ -107,6 +111,8 @@ type openAIRequest struct {
 	ToolChoice   *toolChoiceOut  `json:"tool_choice,omitempty"`
 	Stream       bool            `json:"stream,omitempty"`
 	StreamOption *streamOptions  `json:"stream_options,omitempty"`
+	// ReasoningEffort is sent only to a model that takes one.
+	ReasoningEffort string `json:"reasoning_effort,omitempty"`
 }
 
 // streamOptions asks the provider to send a final chunk that carries usage.

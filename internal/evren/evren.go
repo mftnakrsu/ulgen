@@ -92,6 +92,8 @@ type Quota struct {
 }
 
 // Model describes one served model. MaxOutput is 0 when EVREN gives none.
+// Effort says that the model takes a reasoning_effort; EffortValues are the
+// values EVREN lists for it, nil when it lists none.
 type Model struct {
 	ID            string
 	Task          string
@@ -100,6 +102,8 @@ type Model struct {
 	Tools         bool
 	Thinking      bool
 	Vision        bool
+	Effort        bool
+	EffortValues  []string
 	FreeUntil     string
 }
 
@@ -116,9 +120,11 @@ type modelJSON struct {
 	ContextLength int    `json:"context_length"`
 	MaxOutput     *int   `json:"default_max_output_tokens"`
 	Capabilities  struct {
-		Tools    bool `json:"tools"`
-		Thinking bool `json:"thinking"`
-		Vision   bool `json:"vision"`
+		Tools        bool     `json:"tools"`
+		Thinking     bool     `json:"thinking"`
+		Vision       bool     `json:"vision"`
+		Effort       bool     `json:"reasoning_effort"`
+		EffortValues []string `json:"reasoning_effort_values"`
 	} `json:"capabilities"`
 	Pricing struct {
 		FreeUntil string `json:"free_until"`
@@ -174,6 +180,8 @@ func (c *Client) Models(ctx context.Context) ([]Model, error) {
 			Tools:         m.Capabilities.Tools,
 			Thinking:      m.Capabilities.Thinking,
 			Vision:        m.Capabilities.Vision,
+			Effort:        m.Capabilities.Effort,
+			EffortValues:  m.Capabilities.EffortValues,
 			FreeUntil:     m.Pricing.FreeUntil,
 		}
 		if m.MaxOutput != nil {

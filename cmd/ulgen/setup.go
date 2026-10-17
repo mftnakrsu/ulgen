@@ -318,7 +318,10 @@ func usableModels(listed []evren.Model) (models []setup.Model, skipped int) {
 			continue
 		}
 		seen[m.ID] = true
-		models = append(models, setup.Model{ID: m.ID, Context: m.ContextLength, MaxOutput: max(m.MaxOutput, 0), Vision: m.Vision})
+		models = append(models, setup.Model{
+			ID: m.ID, Context: m.ContextLength, MaxOutput: max(m.MaxOutput, 0), Vision: m.Vision,
+			Effort: m.Effort, EffortValues: m.EffortValues,
+		})
 	}
 	return models, skipped
 }

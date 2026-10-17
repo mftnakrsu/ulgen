@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mftnakrsu/ulgen/internal/evren"
 	"github.com/mftnakrsu/ulgen/internal/proxy"
 )
 
@@ -239,5 +240,23 @@ func TestProxyHelp(t *testing.T) {
 		if !strings.Contains(stdout, w) {
 			t.Errorf("stdout lacks %q:\n%s", w, stdout)
 		}
+	}
+}
+
+// The translator learns from the model list which models take a
+// reasoning_effort, and the values EVREN lists for each.
+func TestModelEfforts(t *testing.T) {
+	models, _ := usableModels([]evren.Model{
+		{ID: "mimo", Task: "chat", ContextLength: 10, Tools: true, Effort: true, EffortValues: []string{"low", "high"}},
+		{ID: "glm", Task: "chat", ContextLength: 10, Tools: true, Effort: true},
+		{ID: "gemma", Task: "chat", ContextLength: 10, Tools: true},
+	})
+	got := modelEfforts(models)
+	values, glm := got["glm"]
+	if len(got) != 2 || strings.Join(got["mimo"], ",") != "low,high" || !glm || values != nil {
+		t.Errorf("efforts = %#v", got)
+	}
+	if _, ok := got["gemma"]; ok {
+		t.Errorf("gemma takes no effort: %#v", got)
 	}
 }

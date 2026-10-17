@@ -61,6 +61,11 @@ type Model struct {
 	Context   int
 	MaxOutput int // 0 when the API gives none
 	Vision    bool
+	// Effort says that the model takes a reasoning_effort, and EffortValues
+	// are the values EVREN lists for it (nil: none listed). Only the
+	// translator reads them.
+	Effort       bool
+	EffortValues []string
 }
 
 // model returns the request's model with the given id.
