@@ -1108,6 +1108,11 @@ func TestWorkerSandboxSettings(t *testing.T) {
 		if sb["enabled"] != true || sb["allowUnsandboxedCommands"] != false || sb["failIfUnavailable"] != true {
 			t.Errorf("switches = %v", sb)
 		}
+		// Absent, Claude Code runs every sandboxed shell command without
+		// asking, whatever the allow-list says; it must be there and false.
+		if v, ok := sb["autoAllowBashIfSandboxed"]; !ok || v != false {
+			t.Errorf("autoAllowBashIfSandboxed = %v (present %v), want false", v, ok)
+		}
 		if len(allow) != 0 || strings.Contains(raw, "allowWrite") {
 			t.Errorf("a worker with no preset may write elsewhere: %s", raw)
 		}
