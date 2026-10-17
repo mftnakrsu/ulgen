@@ -47,6 +47,8 @@ var claudeRemoveVars = []string{
 	"CLAUDE_CODE_USE_BEDROCK",
 	"CLAUDE_CODE_USE_VERTEX",
 	"CLAUDE_CODE_USE_FOUNDRY",
+	"CLAUDE_CODE_USE_MANTLE",
+	"CLAUDE_CODE_USE_ANTHROPIC_AWS",
 }
 
 // maxOutput is the value of CLAUDE_CODE_MAX_OUTPUT_TOKENS: the chosen model's

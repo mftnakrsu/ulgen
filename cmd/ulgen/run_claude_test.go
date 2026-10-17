@@ -90,7 +90,8 @@ func TestRunClaudeSetsTheChildEnvironment(t *testing.T) {
 }
 
 // The variables that would send Claude Code to another provider are removed
-// from the child's environment, CLAUDE_CODE_USE_FOUNDRY included.
+// from the child's environment, the later ones (Foundry, Bedrock's Mantle
+// endpoint, Claude Platform on AWS) included.
 func TestRunClaudeRemovesProviderVariables(t *testing.T) {
 	useClaude(t, nil)
 	vars := signedIn(t)
@@ -99,14 +100,16 @@ func TestRunClaudeRemovesProviderVariables(t *testing.T) {
 	saved := environ
 	environ = func() []string {
 		return []string{"PATH=/usr/bin", "EVREN_API_KEY=" + testKey, "ANTHROPIC_API_KEY=old",
-			"CLAUDE_CODE_USE_BEDROCK=1", "CLAUDE_CODE_USE_VERTEX=1", "CLAUDE_CODE_USE_FOUNDRY=1", "LANG=C"}
+			"CLAUDE_CODE_USE_BEDROCK=1", "CLAUDE_CODE_USE_VERTEX=1", "CLAUDE_CODE_USE_FOUNDRY=1",
+			"CLAUDE_CODE_USE_MANTLE=1", "CLAUDE_CODE_USE_ANTHROPIC_AWS=1", "LANG=C"}
 	}
 	t.Cleanup(func() { environ = saved })
 	if code, _, stderr := exec(t, context.Background(), vars, "run", "--base-url", srv.URL, "claude"); code != 0 {
 		t.Fatalf("code %d stderr %q", code, stderr)
 	}
 	joined := strings.Join(s.env, "\n")
-	for _, gone := range []string{"EVREN_API_KEY=", "ANTHROPIC_API_KEY=", "CLAUDE_CODE_USE_BEDROCK=", "CLAUDE_CODE_USE_VERTEX=", "CLAUDE_CODE_USE_FOUNDRY="} {
+	for _, gone := range []string{"EVREN_API_KEY=", "ANTHROPIC_API_KEY=", "CLAUDE_CODE_USE_BEDROCK=", "CLAUDE_CODE_USE_VERTEX=",
+		"CLAUDE_CODE_USE_FOUNDRY=", "CLAUDE_CODE_USE_MANTLE=", "CLAUDE_CODE_USE_ANTHROPIC_AWS="} {
 		if strings.Contains(joined, gone) {
 			t.Errorf("the child kept %q:\n%s", gone, joined)
 		}
