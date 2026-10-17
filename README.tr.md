@@ -12,7 +12,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0"></a>
 </p>
 
-<p align="center"><a href="README.md">English</a></p>
+<p align="center"><a href="https://mftnakrsu.github.io/ulgen/tr/evren-ile-kodlama-araclari/">Belgeler</a> · <a href="README.md">English</a></p>
 
 Ülgen, Savunma Sanayii Başkanlığı'nın (SSB) işlettiği model API'si [EVREN](docs/evren.md)'i, zaten kullandığınız açık kaynak kodlama araçlarına bağlar: Qwen Code, opencode, Codex CLI ve Claude Code.
 
