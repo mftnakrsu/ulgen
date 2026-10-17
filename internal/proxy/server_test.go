@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -794,4 +795,49 @@ func readDir(dir string) ([]string, error) {
 		names = append(names, e.Name())
 	}
 	return names, nil
+}
+
+// TestProviderRedirectIsNotFollowed covers a provider that answers with a
+// redirect: the request, which carries the key and the prompt, is not sent to
+// the address the redirect names, and the client gets a plain error.
+func TestProviderRedirectIsNotFollowed(t *testing.T) {
+	elsewhere := newStub(t, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		io.WriteString(w, `{"choices":[{"message":{"content":"from elsewhere"},"finish_reason":"stop"}]}`)
+	})
+	provider := newStub(t, func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, elsewhere.URL+"/chat/completions", http.StatusTemporaryRedirect)
+	})
+	s := newServer(t, provider.URL)
+	rec := do(t, s, "/v1/messages", `{"model":"evren-large","max_tokens":10,"messages":[{"role":"user","content":"hi"}]}`,
+		map[string]string{"Authorization": "Bearer " + testToken})
+	if rec.Code != http.StatusBadGateway || !strings.Contains(rec.Body.String(), "redirect") {
+		t.Errorf("answer = %d %s, want 502 and a message that names the redirect", rec.Code, rec.Body.String())
+	}
+	elsewhere.mu.Lock()
+	followed := len(elsewhere.requests)
+	elsewhere.mu.Unlock()
+	if followed != 0 {
+		t.Errorf("the redirect was followed: %d request(s) reached the other address", followed)
+	}
+}
+
+// TestSSEReaderBoundsLinesAndEvents covers a provider that sends a line
+// without an end, or data lines without the blank line that ends an event:
+// the reader gives up at its bound instead of collecting them.
+func TestSSEReaderBoundsLinesAndEvents(t *testing.T) {
+	read := func(stream string) (string, error) {
+		r := newSSEReader(strings.NewReader(stream))
+		r.limit = 64
+		return r.next()
+	}
+	if got, err := read("data: " + strings.Repeat("x", 40) + "\n\n"); err != nil || got != strings.Repeat("x", 40) {
+		t.Errorf("a line within the bound: %q, %v", got, err)
+	}
+	if _, err := read("data: " + strings.Repeat("x", 5000)); !errors.Is(err, errStreamEventTooLarge) {
+		t.Errorf("a line without an end: %v, want errStreamEventTooLarge", err)
+	}
+	if _, err := read(strings.Repeat("data: "+strings.Repeat("x", 20)+"\n", 5)); !errors.Is(err, errStreamEventTooLarge) {
+		t.Errorf("an event without an end: %v, want errStreamEventTooLarge", err)
+	}
 }

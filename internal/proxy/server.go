@@ -295,6 +295,9 @@ func (s *Server) produce(ctx context.Context, resp *http.Response, model string,
 		if !send(tr.Feed(ch)) {
 			return ctx.Err()
 		}
+		if tr.overflow {
+			return errStreamEventTooLarge
+		}
 		return nil
 	}, s.cfg.Key)
 	// A 200 answer that is not a stream (JSON or HTML) carried no chunk. The

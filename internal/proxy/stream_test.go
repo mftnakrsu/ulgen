@@ -573,3 +573,24 @@ func TestStreamWaitsForTheUsageAfterTheFinishReason(t *testing.T) {
 		t.Errorf("text %q, %d message_delta, %d message_stop", text, deltas, stops)
 	}
 }
+
+// TestStreamTranslatorBoundsHeldArguments covers a provider that sends
+// arguments for a call it never names: they are kept only up to the bound,
+// and passing it is flagged so the stream can be ended.
+func TestStreamTranslatorBoundsHeldArguments(t *testing.T) {
+	tr := newStreamTranslator("m", nameMap{})
+	tr.heldLimit = 10
+	fragment := func(args string) streamChunk {
+		return streamChunk{Choices: []streamChoice{{Delta: streamDelta{ToolCalls: []streamToolCall{
+			{Function: openAICallFunction{Arguments: args}},
+		}}}}}
+	}
+	tr.Feed(fragment("12345678"))
+	if tr.overflow || tr.calls[0].args != "12345678" {
+		t.Fatalf("within the bound: overflow %v, held %q", tr.overflow, tr.calls[0].args)
+	}
+	tr.Feed(fragment("abc"))
+	if !tr.overflow || tr.calls[0].args != "12345678" {
+		t.Fatalf("past the bound: overflow %v, held %q", tr.overflow, tr.calls[0].args)
+	}
+}
