@@ -506,8 +506,11 @@ $ ulgen run qwen
 ulgen: ./.qwen/settings.json dosyasında EVREN anahtarının ya da EVREN sağlayıcısının adı geçiyor. Projedeki bir dosya anahtarınızı başka bir adrese gönderebilir; bu yüzden Qwen Code başlatılmadı. Yine de başlatmak için:  ulgen run --trust-project qwen
 ```
 
-(Gerçek iletide dosyanın tam yolu görünür.) Projeye güveniyorsanız `ulgen run
---trust-project qwen` ile bu denetimi atlarsınız. Codex için böyle bir denetim
+(Gerçek iletide dosyanın tam yolu görünür.) opencode'un proje dosyası
+ayarlarının bir bölümünü başka bir dosyadan alıyorsa (`{file:…}`) da araç
+başlatılmaz: Ülgen o dosyanın içeriğini denetlemez, oradan gelen metin EVREN
+sağlayıcısının adı ya da anahtarı tutan bir dosya olabilir. Projeye
+güveniyorsanız `ulgen run --trust-project qwen` ile bu denetimi atlarsınız. Codex için böyle bir denetim
 yoktur; Codex'in proje dosyaları sağlayıcı tanımlayamaz.
 
 ### Windows'ta `.cmd` olarak kurulmuş araçlar

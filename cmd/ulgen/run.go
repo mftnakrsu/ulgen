@@ -336,6 +336,8 @@ func (l *launch) projectRefusal() *failure {
 		return nil
 	case finding.Unreadable:
 		return l.failed(l.tr.T("run.project_unreadable", showPath(l.env.Home, finding.Path), l.tool.Name(), l.tool.ID()))
+	case finding.ReadsFile:
+		return l.failed(l.tr.T("run.project_file_reference", showPath(l.env.Home, finding.Path), l.tool.Name(), l.tool.ID()))
 	}
 	return l.failed(l.tr.T("run.project_file", showPath(l.env.Home, finding.Path), l.tool.Name(), l.tool.ID()))
 }

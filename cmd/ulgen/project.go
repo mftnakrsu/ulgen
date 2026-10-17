@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"syscall"
 	"unicode/utf8"
@@ -54,8 +55,12 @@ const maxProjectFile = 4 << 20
 type projectFinding struct {
 	Path string
 	// Unreadable is true when the file could not be read, so that nothing
-	// is known about it; otherwise it names the EVREN key or provider.
+	// is known about it.
 	Unreadable bool
+	// ReadsFile is true when the file takes part of its text from another
+	// file, which is not checked (see readsAnotherFile).
+	ReadsFile bool
+	// Otherwise the file names the EVREN key or provider.
 }
 
 // userFiler is implemented by the adapters whose tool reads project files:
@@ -169,14 +174,33 @@ func inspectProjectFile(toolID, path string) *projectFinding {
 	if namesEVREN(toolID, data) {
 		return &projectFinding{Path: path}
 	}
+	if readsAnotherFile(toolID, data) {
+		return &projectFinding{Path: path, ReadsFile: true}
+	}
 	return nil
+}
+
+// fileReference is opencode's {file:path}, which opencode replaces by the
+// text of that file before it reads its settings. The case is ignored here,
+// where opencode's own pattern keeps it; a wider match only refuses more.
+var fileReference = regexp.MustCompile(`(?i)\{file:[^}]+\}`)
+
+// readsAnotherFile reports whether an opencode file takes part of its text
+// from another file. That text is not checked: it may make a provider's name
+// "evren", whose address the project then gives, or carry a file that holds
+// the key (the environment of the process, Ülgen's own file store) into
+// another provider's request. A reference inside a comment counts too: the
+// check reads text, not opencode's rules about where a reference is used.
+func readsAnotherFile(toolID string, src []byte) bool {
+	return toolID == "opencode" && fileReference.Match(src)
 }
 
 // namesEVREN reports whether the text of a project file could concern the
 // EVREN key: it mentions EVREN_API_KEY (in any case: Windows does not tell
 // the cases of a variable's name apart), as plain text or as a JSON string
 // written with escapes, or, for opencode, it defines the provider "evren",
-// whose address a project file may replace.
+// whose address a project file may replace (under "provider", or under
+// "providers" as opencode's next major version names it).
 //
 // A file that cannot be understood counts as naming the key: one that does
 // not decode as JSON with comments, one that holds a NUL byte, and one that
@@ -213,11 +237,14 @@ func namesEVREN(toolID string, src []byte) bool {
 	if toolID != "opencode" {
 		return false
 	}
+	// "provider" now; "providers" in opencode's next major version.
 	root, _ := value.(map[string]any)
-	providers, _ := root["provider"].(map[string]any)
-	for id := range providers {
-		if strings.EqualFold(id, "evren") {
-			return true
+	for _, key := range []string{"provider", "providers"} {
+		providers, _ := root[key].(map[string]any)
+		for id := range providers {
+			if strings.EqualFold(id, "evren") {
+				return true
+			}
 		}
 	}
 	return false
