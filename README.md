@@ -24,6 +24,8 @@ The name comes from Ülgen, the creator deity of Turkic mythology. The command i
   <img src="docs/assets/demo.gif" alt="ulgen doctor, ulgen status, and Claude Code answering a question about a file through EVREN" width="760">
 </p>
 
+The recording above is real: `ulgen doctor`, `ulgen status`, then Claude Code reading a file and answering through EVREN. It is made from [docs/assets/demo.tape](docs/assets/demo.tape) with [vhs](https://github.com/charmbracelet/vhs), played back faster than it ran.
+
 ## Install
 
 Linux and macOS:
@@ -72,8 +74,6 @@ ulgen status                            # how much of today's quota is left
 ulgen setup --remove all                # take Ülgen's settings out of every tool again
 ```
 
-The recording is real: `ulgen doctor`, `ulgen status`, then Claude Code reading a file and answering through EVREN. It is made from [docs/assets/demo.tape](docs/assets/demo.tape) with [vhs](https://github.com/charmbracelet/vhs), played back faster than it ran.
-
 ## Supported tools
 
 | Tool | `ulgen setup <name>` | What setup writes |
@@ -107,7 +107,7 @@ Advanced:
 
 `ulgen <command> -h` lists a command's options. Every command follows the system language, Turkish or English.
 
-A full guide in Turkish: [docs/tr/evren-ile-kodlama-araclari.md](docs/tr/evren-ile-kodlama-araclari.md).
+A full guide in Turkish: [EVREN'i kodlama araçlarınızda kullanma](docs/tr/evren-ile-kodlama-araclari.md).
 
 ## Your key stays yours
 

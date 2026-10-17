@@ -50,7 +50,7 @@ irm https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.ps1 |
 
 Betikler indirdikleri dosyanın sağlama toplamını denetler, `sudo` çalıştırmaz
 ve parola sormaz. Pardus için `.deb` paketi, kaynaktan derleme ve indirilen
-dosyayı elle doğrulama [docs/install.md](../install.md) dosyasında anlatılır.
+dosyayı elle doğrulama [kurulum belgesinde](../install.md) anlatılır.
 
 ## En kısa yol
 
