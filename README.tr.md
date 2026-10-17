@@ -24,6 +24,8 @@ Adını Türk mitolojisindeki yaratıcı tanrı Ülgen'den alır. Komutun adı `
   <img src="docs/assets/demo.gif" alt="ulgen doctor, ulgen status ve Claude Code'un EVREN üzerinden bir dosya hakkındaki soruyu yanıtlaması" width="760">
 </p>
 
+Yukarıdaki kayıt gerçektir: `ulgen doctor`, `ulgen status`, ardından Claude Code bir dosyayı okuyup EVREN üzerinden yanıt veriyor. Kayıt [docs/assets/demo.tape](docs/assets/demo.tape) dosyasından [vhs](https://github.com/charmbracelet/vhs) ile üretildi ve gerçekte olduğundan hızlı oynatılıyor.
+
 ## Kurulum
 
 Linux ve macOS:
@@ -71,8 +73,6 @@ ulgen status                            # bugünkü kotadan ne kadar kaldığı
 ulgen setup --remove all                # Ülgen'in ayarlarını bütün araçlardan geri alır
 ```
 
-Yukarıdaki kayıt gerçektir: `ulgen doctor`, `ulgen status`, ardından Claude Code bir dosyayı okuyup EVREN üzerinden yanıt veriyor. Kayıt [docs/assets/demo.tape](docs/assets/demo.tape) dosyasından [vhs](https://github.com/charmbracelet/vhs) ile üretildi ve gerçekte olduğundan hızlı oynatılıyor.
-
 ## Desteklenen araçlar
 
 | Araç | `ulgen setup <ad>` | Kurulumun yazdığı |
@@ -106,7 +106,7 @@ Değişen her dosyanın önce yedeği alınır; `--dry-run` değişikliği yazma
 
 Bir komutun seçenekleri için `ulgen <komut> -h` yazın. Bütün komutlar sistem dilini izler: Türkçe ya da İngilizce.
 
-Ayrıntılı Türkçe kılavuz: [docs/tr/evren-ile-kodlama-araclari.md](docs/tr/evren-ile-kodlama-araclari.md).
+Ayrıntılı Türkçe kılavuz: [EVREN'i kodlama araçlarınızda kullanma](docs/tr/evren-ile-kodlama-araclari.md).
 
 ## Anahtarınız sizde kalır
 

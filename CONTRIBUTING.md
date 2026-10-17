@@ -37,6 +37,19 @@ commands inside that check.
 
 Never paste a real key into an issue, a log or a test.
 
+## The documentation site
+
+<https://mftnakrsu.github.io/ulgen/> is built from `docs/` with MkDocs and
+published from `main`. Its "Using Ülgen" page is the part of `README.md`
+between the `site:using` markers, so those sentences are written once; links
+in that part are written for the repository, and `mkdocs_hooks.py` rewrites
+them for the site. To see the site as CI builds it:
+
+```sh
+pip install -r docs/requirements.txt
+mkdocs build --strict   # or: mkdocs serve
+```
+
 ## Correcting a translation
 
 Ülgen's Turkish messages are in `internal/i18n/locales/tr.json`.

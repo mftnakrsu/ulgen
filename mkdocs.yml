@@ -9,6 +9,8 @@ docs_dir: docs
 exclude_docs: |
   design.md
   release.md
+  requirements.txt
+  assets/demo.tape
 
 hooks:
   - mkdocs_hooks.py

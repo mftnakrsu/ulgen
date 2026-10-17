@@ -8,6 +8,8 @@ EVREN for the coding tools you already use.
   <img src="assets/demo.gif" alt="ulgen doctor, ulgen status, and Claude Code answering a question about a file through EVREN" width="760">
 </p>
 
+The recording above is real: `ulgen doctor`, `ulgen status`, then Claude Code reading a file and answering through EVREN. It is made from [demo.tape](https://github.com/mftnakrsu/ulgen/blob/main/docs/assets/demo.tape) with [vhs](https://github.com/charmbracelet/vhs), played back faster than it ran.
+
 ## Install
 
 Linux and macOS:
