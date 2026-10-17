@@ -173,6 +173,11 @@ prompt, so the fence is built before the process starts.
 - **Claude Code's own sandbox, fail-closed.** Shell commands can write only
   under `--dir` and the temporary directory. A system without a sandbox stops
   the worker unless `--no-sandbox` is given.
+- **Being in the sandbox is not a permission.** Left to itself, Claude Code
+  runs every shell command the sandbox can hold without asking, in any
+  permission mode, `dontAsk` included, and the allow-list would then stop
+  nothing. The worker sets `autoAllowBashIfSandboxed` to false, so a command
+  runs only when a rule allows it.
 - **The key places are closed** (`~/.ssh`, credential directories, Ülgen's own
   directory) to shell commands and to the file tools alike, also with
   `--no-sandbox`.

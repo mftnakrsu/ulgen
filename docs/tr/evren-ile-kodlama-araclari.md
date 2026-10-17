@@ -439,7 +439,9 @@ böyle bir kural vermeyin.
   benzerleri) ise ne izin verirseniz verin kapalı kalır.
 - **Kum havuzu.** Claude Code'un kendi kum havuzudur (macOS'ta Seatbelt,
   Linux'ta bubblewrap). Kabuk komutları yalnızca `--dir` dizininin ve geçici
-  dizinin altına yazabilir ve yukarıdaki anahtar yerlerini okuyamaz.
+  dizinin altına yazabilir ve yukarıdaki anahtar yerlerini okuyamaz. Kum
+  havuzu izin kurallarının yerine geçmez: bir kabuk komutu, kum havuzunda
+  çalışacak olsa bile yalnızca bir kural izin veriyorsa çalışır.
 
 Kum havuzu, kabuk komutlarının makinedeki başka dosyaları okumasını
 engellemez: `go` ya da `python` gibi bir ön ayar kod çalıştırır ve o kod sizin

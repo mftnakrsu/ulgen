@@ -66,8 +66,12 @@ type workerPermissionsDoc struct {
 }
 
 // workerSandboxDoc is the "sandbox" object of the settings.
+// AutoAllowBashIfSandboxed is always written, as false: left out, Claude Code
+// runs every shell command that the sandbox can hold without asking, in any
+// permission mode, so a command the allow-list does not name would run.
 type workerSandboxDoc struct {
 	Enabled                  bool                `json:"enabled"`
+	AutoAllowBashIfSandboxed bool                `json:"autoAllowBashIfSandboxed"`
 	AllowUnsandboxedCommands bool                `json:"allowUnsandboxedCommands"`
 	FailIfUnavailable        bool                `json:"failIfUnavailable"`
 	Filesystem               workerFilesystemDoc `json:"filesystem"`
@@ -111,10 +115,11 @@ func workerWritablePaths(home string, presets []string) []string {
 
 // workerSettings builds the --settings value. Always: the rules that refuse
 // the file-reading tools the paths under home and in cfgDir where keys live.
-// With sandbox set, also Claude Code's sandbox: on, no escape to unsandboxed
-// commands, a refusal to start without it, the same paths hidden from shell
-// commands, and writable as the extra directories commands may write (see
-// workerWritablePaths).
+// With sandbox set, also Claude Code's sandbox: on, no shell command run for
+// being sandboxed alone (the allow-list still decides), no escape to
+// unsandboxed commands, a refusal to start without it, the same paths hidden
+// from shell commands, and writable as the extra directories commands may
+// write (see workerWritablePaths).
 func workerSettings(home, cfgDir string, writable []string, sandbox bool) (string, error) {
 	var hidden []string
 	if home != "" {
