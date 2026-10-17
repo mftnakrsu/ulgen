@@ -10,3 +10,9 @@ updates:
       actions:
         patterns:
           - "*"
+    ignore:
+      # cosign-installer 4 installs cosign 3, which signs in a newer bundle
+      # format; see "Signing" in docs/release.md before moving.
+      - dependency-name: sigstore/cosign-installer
+        update-types:
+          - version-update:semver-major
