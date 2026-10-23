@@ -1,0 +1,21 @@
+---
+// Starlight's footer, followed by the line the MkDocs site carried: the pages describe the main
+// branch, which can be ahead of the latest release.
+import Default from '@astrojs/starlight/components/Footer.astro';
+
+const { lang } = Astro.locals.starlightRoute;
+---
+
+<Default />
+<p class="follows-main">
+  {lang === 'tr' ? 'Bu site, deponun main dalını izler.' : 'This site follows the main branch.'}
+</p>
+
+<style>
+  .follows-main {
+    margin-top: 1.5rem;
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+    text-align: center;
+  }
+</style>

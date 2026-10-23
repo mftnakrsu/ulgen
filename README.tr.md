@@ -12,9 +12,12 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0"></a>
 </p>
 
-<p align="center"><a href="https://mftnakrsu.github.io/ulgen/tr/evren-ile-kodlama-araclari/">Belgeler</a> · <a href="README.md">English</a></p>
+<p align="center">
+  <a href="https://ulgen.mefby.com/tr/"><b>Web sitesi ve belgeler</b></a> ·
+  <a href="README.md">English</a>
+</p>
 
-Ülgen, Savunma Sanayii Başkanlığı'nın (SSB) işlettiği model API'si [EVREN](docs/evren.md)'i, zaten kullandığınız açık kaynak kodlama araçlarına bağlar: Qwen Code, opencode, Codex CLI ve Claude Code.
+Ülgen, Savunma Sanayii Başkanlığı'nın (SSB) işlettiği model API'si [EVREN](https://ulgen.mefby.com/tr/evren/)'i, zaten kullandığınız açık kaynak kodlama araçlarına bağlar: Qwen Code, opencode, Codex CLI ve Claude Code.
 
 Bu araçlar zaten iyi çalışıyor, EVREN de yetenekli açık ağırlıklı modeller sunuyor. Eksik olan aradaki parça: giriş yapmak, anahtarı güvende tutmak, kullanım koşullarını kabul etmek, kotayı izlemek, her aracın ayarını doğru yazmak ve Türkçe arayüz. Ülgen bu parçadır. Tek bir programdır; yeni bir kodlama ajanı değildir.
 
@@ -40,7 +43,7 @@ Windows (PowerShell):
 irm https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.ps1 | iex
 ```
 
-Pardus, Debian ve Ubuntu paketleri, kaynaktan derleme ve indirilen dosyanın doğrulanması için: [docs/install.md](docs/install.md).
+Pardus, Debian ve Ubuntu paketleri, kaynaktan derleme ve indirilen dosyanın doğrulanması için: [kurulum sayfası](https://ulgen.mefby.com/tr/install/).
 
 ## İlk kullanım
 
@@ -106,7 +109,7 @@ Değişen her dosyanın önce yedeği alınır; `--dry-run` değişikliği yazma
 
 Bir komutun seçenekleri için `ulgen <komut> -h` yazın. Bütün komutlar sistem dilini izler: Türkçe ya da İngilizce.
 
-Ayrıntılı Türkçe kılavuz: [EVREN'i kodlama araçlarınızda kullanma](docs/tr/evren-ile-kodlama-araclari.md).
+Ayrıntılı Türkçe kılavuz: [EVREN'i kodlama araçlarınızda kullanma](https://ulgen.mefby.com/tr/evren-ile-kodlama-araclari/).
 
 ## Anahtarınız sizde kalır
 

@@ -7,9 +7,10 @@
 /bin/
 /dist/
 /target/
-/site/
-__pycache__/
 node_modules/
+/docs-site/node_modules/
+/docs-site/dist/
+/docs-site/.astro/
 /ulgen
 /ulgen.exe
 *.test

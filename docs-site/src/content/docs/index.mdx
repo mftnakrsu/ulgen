@@ -1,0 +1,152 @@
+---
+title: EVREN for the coding tools you already use
+description: Ülgen connects EVREN, the model API run by Türkiye's Presidency of Defence Industries (SSB), to Qwen Code, opencode, Codex CLI and Claude Code. It is one binary, and it is not a new coding agent.
+template: splash
+hero:
+  title: EVREN for the coding tools you already use
+  tagline: "Ülgen connects EVREN, the model API run by Türkiye's Presidency of Defence Industries (SSB), to Qwen Code, opencode, Codex CLI and Claude Code. It is one binary, and it is not a new coding agent."
+  actions:
+    - text: Install
+      link: /install/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/mftnakrsu/ulgen
+      icon: github
+      variant: secondary
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<video
+  class="demo-video"
+  controls
+  muted
+  loop
+  playsinline
+  autoplay
+  preload="metadata"
+  poster="/media/ulgen-demo-en-poster.png"
+  src="/media/ulgen-demo-en.mp4"
+  aria-label="Ülgen demo: signing in with ulgen login, setting up opencode, ulgen doctor and ulgen status, then Claude Code reading a file and answering through EVREN"
+>
+  Your browser cannot play this video. <a href="/media/ulgen-demo-en.mp4">Download the demo video</a> (MP4).
+</video>
+
+## What Ülgen does
+
+The coding tools already work well, and [EVREN](/evren/) serves capable open-weight models. What
+is missing is the part in between: signing in, keeping the key safe, accepting the terms, watching
+the quota, writing the right settings into each tool, and a Turkish interface. Ülgen is that part.
+
+<CardGrid>
+  <Card title="Sign-in in one command" icon="approve-check">
+    The e-Devlet step cannot be skipped; everything after it is `ulgen login`. It opens EVREN's API
+    keys page, asks for the key, shows the terms and saves the key once EVREN has accepted it.
+  </Card>
+  <Card title="The key stays yours" icon="padlock">
+    It is kept in the operating system's credential store (or a file only you can read), and never
+    written into a tool's settings file, printed or logged. Claude Code never receives it. See
+    [Your key stays yours](/using/#your-key-stays-yours).
+  </Card>
+  <Card title="Each tool set up for EVREN" icon="setting">
+    `ulgen setup` writes the right settings into each tool. Every changed file is backed up first,
+    `--dry-run` shows the change without writing it, and `--remove` undoes it.
+  </Card>
+  <Card title="The quota in view" icon="analytics">
+    `ulgen status` shows how much of today's quota is left, and the models.
+  </Card>
+  <Card title="Says what is wrong" icon="information">
+    `ulgen doctor` checks the key, EVREN and every tool, and says what to do about what is wrong.
+  </Card>
+  <Card title="Turkish and English" icon="translate">
+    Every command follows the system language, Turkish or English.
+  </Card>
+</CardGrid>
+
+## Install
+
+Linux and macOS:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.ps1 | iex
+```
+
+Pardus, Debian and Ubuntu packages, building from source and checking a download are on the
+[install](/install/) page.
+
+You need an EVREN account (sign-in is through e-Devlet) and one of the supported tools installed.
+Then run:
+
+```sh
+ulgen
+```
+
+On the first run Ülgen signs you in, finds the tools you have installed, asks which one you want,
+sets it up for EVREN and starts it. Later runs start that tool straight away. What each command
+does is under [Using Ülgen](/using/).
+
+## Supported tools
+
+| Tool | `ulgen setup <name>` | What setup writes |
+|---|---|---|
+| Qwen Code | `qwen` | The EVREN models in `settings.json` |
+| opencode | `opencode` | The EVREN provider in `opencode.json` |
+| Codex CLI | `codex` | A profile file of its own, `evren.config.toml`; your `config.toml` is never written |
+| Claude Code | `claude` | Only a skill for EVREN workers; `ulgen run claude` needs no settings file |
+
+Claude Code talks to a translator inside Ülgen on your own machine. Anthropic does not support
+using Claude Code with other models; this and the other [known limits](/using/#known-limits) are
+on the Using Ülgen page.
+
+## Documentation
+
+<CardGrid>
+  <LinkCard
+    title="Install"
+    description="The install scripts, .deb and .rpm packages, building from source, checking a download and removing Ülgen."
+    href="/install/"
+  />
+  <LinkCard
+    title="Using Ülgen"
+    description="The first run, the commands, the supported tools, the key and the known limits."
+    href="/using/"
+  />
+  <LinkCard
+    title="Full guide in Turkish"
+    description="EVREN'i kodlama araçlarınızda kullanma: every step and option, in Turkish."
+    href="/tr/evren-ile-kodlama-araclari/"
+  />
+  <LinkCard
+    title="EVREN"
+    description="EVREN's API, terms, models and limits, as observed, with the dates."
+    href="/evren/"
+  />
+</CardGrid>
+
+## Source and releases
+
+Ülgen is free software under the AGPL-3.0-only license. The code, the issues and the releases are
+on [GitHub](https://github.com/mftnakrsu/ulgen). The name comes from Ülgen, the creator deity of
+Turkic mythology; the command is `ulgen`.
+
+<CardGrid>
+  <LinkCard
+    title="Source code"
+    description="The repository, with the design notes and how to contribute."
+    href="https://github.com/mftnakrsu/ulgen"
+  />
+  <LinkCard
+    title="Releases"
+    description="Archives for Linux, macOS and Windows, .deb and .rpm packages, and signed checksums."
+    href="https://github.com/mftnakrsu/ulgen/releases/latest"
+  />
+</CardGrid>
+
+Ülgen is an independent, non-commercial project. It is not affiliated with SSB, EVREN or the makers
+of the tools it sets up.

@@ -39,20 +39,24 @@ Never paste a real key into an issue, a log or a test.
 
 ## The documentation site
 
-<https://mftnakrsu.github.io/ulgen/> is built from `docs/` with MkDocs and
-published from `main`. Its "Using Ülgen" page is the part of `README.md`
-between the `site:using` markers, so those sentences are written once; links
-in that part are written for the repository, and `mkdocs_hooks.py` rewrites
-them for the site. To see the site as CI builds it:
+<https://ulgen.mefby.com> is built from `docs-site/` with Astro Starlight and
+published from `main`. Each page is in `docs-site/src/content/docs/`, and its
+Turkish translation is at the same path under `tr/`; the long Turkish guide,
+`tr/evren-ile-kodlama-araclari.md`, has no English version. The "Using Ülgen"
+page says what `README.md` says from "First run" to "Known limits", and its
+Turkish translation what `README.tr.md` says, so a change to those sections
+goes into the page as well. To see the site:
 
 ```sh
-pip install -r docs/requirements.txt
-mkdocs build --strict   # or: mkdocs serve
+cd docs-site && npm ci && npm run dev
 ```
+
+`npm run build` builds it as CI does.
 
 ## Correcting a translation
 
-Ülgen's Turkish messages are in `internal/i18n/locales/tr.json`.
+Ülgen's Turkish messages are in `internal/i18n/locales/tr.json`, and the
+site's Turkish pages in `docs-site/src/content/docs/tr/`.
 
 ## Licence
 

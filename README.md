@@ -12,9 +12,12 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0"></a>
 </p>
 
-<p align="center"><a href="https://mftnakrsu.github.io/ulgen/">Documentation</a> · <a href="README.tr.md">Türkçe</a></p>
+<p align="center">
+  <a href="https://ulgen.mefby.com"><b>Website &amp; documentation</b></a> ·
+  <a href="README.tr.md">Türkçe</a>
+</p>
 
-Ülgen connects [EVREN](docs/evren.md), the model API run by Türkiye's Presidency of Defence Industries (SSB), to the open-source coding tools people already use: Qwen Code, opencode, Codex CLI and Claude Code.
+Ülgen connects [EVREN](https://ulgen.mefby.com/evren/), the model API run by Türkiye's Presidency of Defence Industries (SSB), to the open-source coding tools people already use: Qwen Code, opencode, Codex CLI and Claude Code.
 
 Those tools already work well, and EVREN serves capable open-weight models. What is missing is the part in between: signing in, keeping the key safe, accepting the terms, watching the quota, writing the right settings into each tool, and a Turkish interface. Ülgen is that part. It is one binary, and it is not a new coding agent.
 
@@ -40,9 +43,8 @@ Windows (PowerShell):
 irm https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.ps1 | iex
 ```
 
-Pardus, Debian and Ubuntu packages, building from source and checking a download are in [docs/install.md](docs/install.md).
+Pardus, Debian and Ubuntu packages, building from source and checking a download are on the [install page](https://ulgen.mefby.com/install/).
 
-<!-- site:using-start -->
 ## First run
 
 You need an EVREN account (sign-in is through e-Devlet) and one of the supported tools installed.
@@ -107,7 +109,7 @@ Advanced:
 
 `ulgen <command> -h` lists a command's options. Every command follows the system language, Turkish or English.
 
-A full guide in Turkish: [EVREN'i kodlama araçlarınızda kullanma](docs/tr/evren-ile-kodlama-araclari.md).
+A full guide in Turkish: [EVREN'i kodlama araçlarınızda kullanma](https://ulgen.mefby.com/tr/evren-ile-kodlama-araclari/).
 
 ## Your key stays yours
 
@@ -126,7 +128,6 @@ The reasoning behind these and the other decisions is in [docs/design.md](docs/d
 - Token counts shown by Claude Code on EVREN are estimates.
 - When it ends, Claude Code suggests `claude --resume <id>`. Run as it is, that command does not go through Ülgen; `ulgen claude --resume <id>` resumes the session on EVREN.
 - On Windows, a tool whose launcher is not the standard one npm writes is started through `cmd.exe`, and then an argument may not contain `"`, `%`, `^` or `!`.
-<!-- site:using-end -->
 
 ## Building
 

@@ -1,20 +1,21 @@
+# Build the site in docs-site/ and publish it to GitHub Pages at
+# https://ulgen.mefby.com.
+#
+# In the repository settings, Pages → Source is "GitHub Actions" and Pages →
+# Custom domain is ulgen.mefby.com. No CNAME file is needed when Pages deploys
+# from Actions. A push to main or a manual run on main publishes; a pull
+# request touching the site only builds it.
 name: Docs
 
 on:
   push:
     branches: [main]
     paths:
-      - "docs/**"
-      - "README.md"
-      - "mkdocs.yml"
-      - "mkdocs_hooks.py"
+      - "docs-site/**"
       - ".github/workflows/docs.yml"
   pull_request:
     paths:
-      - "docs/**"
-      - "README.md"
-      - "mkdocs.yml"
-      - "mkdocs_hooks.py"
+      - "docs-site/**"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 
@@ -28,23 +29,28 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs-site
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          python-version: "3.12"
-      - name: Install MkDocs
-        run: pip install -r docs/requirements.txt
+          node-version: 24
+          cache: npm
+          cache-dependency-path: docs-site/package-lock.json
+      - name: Install
+        run: npm ci
       - name: Build
-        run: mkdocs build --strict
+        run: npm run build
       - name: Upload the site
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          path: site
+          path: docs-site/dist
 
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: build
     permissions:
       pages: write

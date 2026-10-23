@@ -1,4 +1,9 @@
-# EVREN'i kodlama araçlarınızda kullanma
+---
+title: EVREN'i kodlama araçlarınızda kullanma
+description: Ülgen ile EVREN'e giriş, araçları ayarlama, araçları başlatma, Claude Code ve EVREN işçileri, güvenlik, geri alma ve hata iletileri; bütün seçenekleriyle.
+sidebar:
+  label: Ayrıntılı kılavuz
+---
 
 ## Bu nedir
 
@@ -50,7 +55,7 @@ irm https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.ps1 |
 
 Betikler indirdikleri dosyanın sağlama toplamını denetler, `sudo` çalıştırmaz
 ve parola sormaz. Pardus için `.deb` paketi, kaynaktan derleme ve indirilen
-dosyayı elle doğrulama [kurulum belgesinde](../install.md) anlatılır.
+dosyayı elle doğrulama [kurulum sayfasında](/tr/install/) anlatılır.
 
 ## En kısa yol
 
@@ -113,7 +118,7 @@ ulgen login
 
 Anahtar nerede saklanır: işletim sisteminin kimlik bilgisi deposunda (sistem
 anahtarlığı). Sistemde anahtarlık yoksa, yalnızca sizin okuyabileceğiniz bir
-dosyaya — `credentials.json`, 0600 izniyle, yapılandırma dizininin içine.
+dosyada: yapılandırma dizinindeki `credentials.json`, 0600 izniyle.
 Kaydettikten sonra Ülgen nerede sakladığını söyler: `Anahtar sistem
 anahtarlığına kaydedildi.` ya da `Anahtar <dosya> dosyasına kaydedildi (yalnızca
 siz okuyabilirsiniz).`
@@ -492,8 +497,8 @@ yazar. Birden çok bağımsız görevi aynı anda
 
 Qwen Code'un kullanım istatistikleri ayarlama sırasında kapatılır: ayar
 dosyasında `privacy.usageStatisticsEnabled` yoksa `false` yazılır. Bu
-istatistikler üçüncü bir tarafa gönderilir. Değer zaten varsa — ne olursa
-olsun — sizinki sayılır ve değiştirilmez. Qwen Code'da
+istatistikler üçüncü bir tarafa gönderilir. Değer zaten varsa (ne olursa
+olsun) sizinki sayılır ve değiştirilmez. Qwen Code'da
 `QWEN_USAGE_STATISTICS_ENABLED` ortam değişkeni bu ayarın önüne geçer:
 tanımlıysa Qwen Code onun değerine uyar.
 
