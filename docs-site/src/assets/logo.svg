@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Ülgen">
+  <g fill="none" stroke="#2F81F7" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M128 220V150"/>
+    <path d="M92 220h72"/>
+    <path d="M128 180c0-32-46-20-69-43"/>
+    <path d="M128 180c0-32 46-20 69-43"/>
+    <path d="M128 150c0-34-36-30-50-64"/>
+    <path d="M128 150c0-34 36-30 50-64"/>
+  </g>
+  <g fill="#2F81F7">
+    <circle cx="128" cy="55" r="21"/>
+    <circle cx="78" cy="86" r="16"/>
+    <circle cx="178" cy="86" r="16"/>
+    <circle cx="59" cy="137" r="16"/>
+    <circle cx="197" cy="137" r="16"/>
+  </g>
+</svg>

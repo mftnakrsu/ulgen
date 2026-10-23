@@ -1,0 +1,153 @@
+---
+title: Zaten kullandığınız kodlama araçları için EVREN
+description: Ülgen, Savunma Sanayii Başkanlığı'nın (SSB) işlettiği model API'si EVREN'i Qwen Code, opencode, Codex CLI ve Claude Code'a bağlar. Tek bir programdır; yeni bir kodlama ajanı değildir.
+template: splash
+hero:
+  title: Zaten kullandığınız kodlama araçları için EVREN
+  tagline: "Ülgen, Savunma Sanayii Başkanlığı'nın (SSB) işlettiği model API'si EVREN'i Qwen Code, opencode, Codex CLI ve Claude Code'a bağlar. Tek bir programdır; yeni bir kodlama ajanı değildir."
+  actions:
+    - text: Kurulum
+      link: /tr/install/
+      icon: right-arrow
+    - text: GitHub'da görün
+      link: https://github.com/mftnakrsu/ulgen
+      icon: github
+      variant: secondary
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<video
+  class="demo-video"
+  controls
+  muted
+  loop
+  playsinline
+  autoplay
+  preload="metadata"
+  poster="/media/ulgen-demo-tr-poster.png"
+  src="/media/ulgen-demo-tr.mp4"
+  aria-label="Ülgen tanıtımı: bir terminalde Ülgen, bir kodlama aracını EVREN'e bağlıyor"
+>
+  Tarayıcınız bu videoyu oynatamıyor. <a href="/media/ulgen-demo-tr.mp4">Tanıtım videosunu indirin</a> (MP4).
+</video>
+
+## Ülgen ne yapar
+
+Kodlama araçları zaten iyi çalışıyor, [EVREN](/tr/evren/) de yetenekli açık ağırlıklı modeller
+sunuyor. Eksik olan aradaki parça: giriş yapmak, anahtarı güvende tutmak, kullanım koşullarını
+kabul etmek, kotayı izlemek, her aracın ayarını doğru yazmak ve Türkçe arayüz. Ülgen bu parçadır.
+
+<CardGrid>
+  <Card title="Tek komutla giriş" icon="approve-check">
+    E-Devlet adımı atlanamaz; ondan sonrası `ulgen login` komutudur. EVREN'in API anahtarı sayfasını
+    açar, anahtarı sorar, koşulları gösterir ve EVREN anahtarı kabul ettikten sonra kaydeder.
+  </Card>
+  <Card title="Anahtarınız sizde kalır" icon="padlock">
+    İşletim sisteminin kimlik deposunda (ya da yalnızca sizin okuyabildiğiniz bir dosyada) saklanır;
+    hiçbir aracın ayar dosyasına, ekrana ya da günlüğe yazılmaz. Claude Code anahtarı hiç almaz.
+    Bkz. [Anahtarınız sizde kalır](/tr/using/#anahtarınız-sizde-kalır).
+  </Card>
+  <Card title="Her araç EVREN için ayarlanır" icon="setting">
+    `ulgen setup`, her araca gereken ayarı yazar. Değişen her dosyanın önce yedeği alınır;
+    `--dry-run` değişikliği yazmadan gösterir, `--remove` geri alır.
+  </Card>
+  <Card title="Kota göz önünde" icon="analytics">
+    `ulgen status`, bugünkü kotadan ne kadar kaldığını ve modelleri gösterir.
+  </Card>
+  <Card title="Neyin yanlış olduğunu söyler" icon="information">
+    `ulgen doctor` anahtarı, EVREN'i ve her aracı denetler; yanlış olan için ne yapılacağını söyler.
+  </Card>
+  <Card title="Türkçe ve İngilizce" icon="translate">
+    Bütün komutlar sistem dilini izler: Türkçe ya da İngilizce.
+  </Card>
+</CardGrid>
+
+## Kurulum
+
+Linux ve macOS:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/mftnakrsu/ulgen/main/scripts/install.ps1 | iex
+```
+
+Pardus, Debian ve Ubuntu paketleri, kaynaktan derleme ve indirilen dosyanın doğrulanması
+[kurulum](/tr/install/) sayfasında.
+
+Bir EVREN hesabı (giriş e-Devlet ile yapılır) ve desteklenen araçlardan birinin kurulu olması
+gerekir. Sonra şunu çalıştırın:
+
+```sh
+ulgen
+```
+
+İlk çalıştırmada Ülgen giriş yaptırır, kurulu araçları bulur, hangisini istediğinizi sorar, onu
+EVREN için ayarlar ve başlatır. Sonraki çalıştırmalarda aynı aracı doğrudan başlatır. Komutların
+ne yaptığı [Ülgen'i kullanma](/tr/using/) sayfasında, her adım bütün seçenekleriyle
+[ayrıntılı kılavuzda](/tr/evren-ile-kodlama-araclari/) anlatılır.
+
+## Desteklenen araçlar
+
+| Araç | `ulgen setup <ad>` | Kurulumun yazdığı |
+|---|---|---|
+| Qwen Code | `qwen` | `settings.json` içine EVREN modelleri |
+| opencode | `opencode` | `opencode.json` içine EVREN sağlayıcısı |
+| Codex CLI | `codex` | Kendine ait bir profil dosyası, `evren.config.toml`; sizin `config.toml` dosyanıza hiç yazılmaz |
+| Claude Code | `claude` | Yalnızca EVREN işçileri için bir beceri dosyası; `ulgen run claude` ayar dosyası gerektirmez |
+
+Claude Code, kendi makinenizde Ülgen'in içindeki bir çeviriciyle konuşur. Anthropic, Claude
+Code'un başka modellerle kullanılmasını desteklemez; bu ve diğer
+[bilinen sınırlar](/tr/using/#bilinen-sınırlar) Ülgen'i kullanma sayfasında.
+
+## Belgeler
+
+<CardGrid>
+  <LinkCard
+    title="Kurulum"
+    description="Kurulum betikleri, .deb ve .rpm paketleri, kaynaktan derleme, indirilen dosyayı doğrulama ve Ülgen'i kaldırma."
+    href="/tr/install/"
+  />
+  <LinkCard
+    title="Ülgen'i kullanma"
+    description="İlk kullanım, komutlar, desteklenen araçlar, anahtar ve bilinen sınırlar."
+    href="/tr/using/"
+  />
+  <LinkCard
+    title="Ayrıntılı kılavuz"
+    description="EVREN'i kodlama araçlarınızda kullanma: her adım, her seçenek."
+    href="/tr/evren-ile-kodlama-araclari/"
+  />
+  <LinkCard
+    title="EVREN"
+    description="EVREN'in API'si, koşulları, modelleri ve sınırları; gözlemlendiği tarihlerle."
+    href="/tr/evren/"
+  />
+</CardGrid>
+
+## Kaynak kod ve sürümler
+
+Ülgen, AGPL-3.0-only lisanslı özgür bir yazılımdır. Kod, hata kayıtları ve sürümler
+[GitHub'da](https://github.com/mftnakrsu/ulgen). Adını Türk mitolojisindeki yaratıcı tanrı
+Ülgen'den alır; komutun adı `ulgen`.
+
+<CardGrid>
+  <LinkCard
+    title="Kaynak kod"
+    description="Depo; tasarım notları ve katkı rehberi de orada (İngilizce)."
+    href="https://github.com/mftnakrsu/ulgen"
+  />
+  <LinkCard
+    title="Sürümler"
+    description="Linux, macOS ve Windows için arşivler, .deb ve .rpm paketleri, imzalı sağlama toplamları."
+    href="https://github.com/mftnakrsu/ulgen/releases/latest"
+  />
+</CardGrid>
+
+Ülgen bağımsız, ticari olmayan bir projedir. SSB, EVREN ya da ayarladığı araçların yapımcılarıyla
+bir bağı yoktur.

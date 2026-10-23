@@ -1,0 +1,81 @@
+/*
+ * Colours follow the logo: its blue, #2f81f7, on cool slate greys. Light mode uses a darker shade
+ * of the same blue, because the logo's own blue is below 4.5:1 on white.
+ * Starlight sets data-theme="dark" or "light" on <html>; :root holds the dark values.
+ * Text contrast stays at 4.5:1 or more on the page, sidebar and inline code backgrounds.
+ */
+:root {
+  --sl-color-accent-low: #0f2a4f;
+  --sl-color-accent: #2f81f7;
+  --sl-color-accent-high: #b9d5fe;
+
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #eef1f5;
+  --sl-color-gray-2: #c8ced6;
+  --sl-color-gray-3: #949ca8;
+  --sl-color-gray-4: #5a626e;
+  --sl-color-gray-5: #353c46;
+  --sl-color-gray-6: #1f242c;
+  --sl-color-black: #14181e;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #e5eefd;
+  --sl-color-accent: #1a62d6;
+  --sl-color-accent-high: #0e3a85;
+
+  --sl-color-white: #1b1f24;
+  --sl-color-gray-1: #24292f;
+  --sl-color-gray-2: #3b424b;
+  --sl-color-gray-3: #59616b;
+  --sl-color-gray-4: #98a0aa;
+  --sl-color-gray-5: #d5dae1;
+  --sl-color-gray-6: #eef1f5;
+  --sl-color-gray-7: #f6f8fa;
+  --sl-color-black: #ffffff;
+}
+
+/* Card icons use the accent instead of Starlight's rotating rainbow. */
+.card {
+  --sl-card-border: var(--sl-color-accent);
+  --sl-card-bg: var(--sl-color-accent-low);
+}
+
+/* A hero without an image (the home and 404 pages) is centred in one column. */
+@media (min-width: 50rem) {
+  .hero:not(:has(> img, > .hero-html)) {
+    grid-template-columns: 100%;
+    padding-block: clamp(2.5rem, calc(1rem + 8vmin), 6rem) 2rem;
+  }
+
+  .hero:not(:has(> img, > .hero-html)) .stack {
+    text-align: center;
+  }
+
+  .hero:not(:has(> img, > .hero-html)) .copy {
+    align-items: center;
+  }
+
+  .hero:not(:has(> img, > .hero-html)) .actions {
+    justify-content: center;
+  }
+}
+
+/* The demo video. */
+.sl-markdown-content .demo-video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 1rem;
+  box-shadow: var(--sl-shadow-md);
+}
+
+/* "Otomatik" is longer than the room Starlight gives the theme menu. */
+:root[lang='tr'] starlight-theme-select select {
+  width: calc(7.5em + var(--sl-inline-padding) * 2);
+}
