@@ -1,6 +1,6 @@
 # Releases
 
-This is the runbook for cutting a release of Ülgen. Installing one is described in [install.md](install.md).
+This is the runbook for cutting a release of Ülgen. Installing one is described on the [install page](https://ulgen.mefby.com/install/).
 
 ## Cutting a release
 
@@ -31,9 +31,11 @@ artifact kept for seven days. A snapshot publishes nothing.
 The release job signs `checksums.txt` with cosign's keyless signing and
 uploads `checksums.txt.sigstore.json` next to it. The signature is bound to
 this workflow file at the tag (`.github/workflows/release.yml@refs/tags/v…`),
-which is the identity the install scripts and `docs/install.md` check. Moving
-the repository or renaming the workflow changes that identity: the scripts and
-the document have to change with it.
+which is the identity the install scripts and the install page
+(`docs-site/src/content/docs/install.md` and its Turkish translation,
+`docs-site/src/content/docs/tr/install.md`) check. Moving the repository or
+renaming the workflow changes that identity: the scripts and the pages have to
+change with it.
 
 A snapshot is not signed.
 
@@ -49,7 +51,7 @@ sign a test with cosign 3, then check it with the oldest cosign the install
 scripts should accept.
 
 v0.1.0 and v0.2.0 were signed this way. `install.sh` with cosign on the
-`PATH` and the `cosign verify-blob` command in [install.md](install.md) both
+`PATH` and the `cosign verify-blob` command on the [install page](https://ulgen.mefby.com/install/) both
 accept their signatures, with cosign 2.6.5 and 3.1.3.
 
 ## The workflows' actions

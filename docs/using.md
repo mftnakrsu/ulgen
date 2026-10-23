@@ -1,3 +1,0 @@
-# Using Ülgen
-
-<!-- site:using -->
