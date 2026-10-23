@@ -1,0 +1,45 @@
+{
+  "name": "ulgen-video",
+  "version": "1.0.0",
+  "description": "Ülgen demo video and the gallery stills of the website, made with Remotion",
+  "license": "AGPL-3.0-only",
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
+  },
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@remotion/cli": "4.0.536",
+    "@remotion/fonts": "4.0.536",
+    "@remotion/media": "4.0.536",
+    "@remotion/transitions": "4.0.536",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.536"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.536",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "10.12.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "node scripts/render.mjs all",
+    "render:demo": "node scripts/render.mjs demo",
+    "render:demo:en": "node scripts/render.mjs demo-en",
+    "render:demo:tr": "node scripts/render.mjs demo-tr",
+    "render:demo:captioned": "node scripts/render.mjs demo-captioned",
+    "render:posters": "node scripts/render.mjs posters",
+    "render:stills": "node scripts/render.mjs stills",
+    "render:voiced": "node scripts/render.mjs voiced",
+    "render:captions": "node scripts/render.mjs captions",
+    "build": "remotion bundle",
+    "lint": "eslint src && tsc"
+  },
+  "allowScripts": {
+    "esbuild": false
+  }
+}
